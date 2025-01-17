@@ -1,0 +1,96 @@
+﻿@page
+@model CS395SI_Spring2023_Group1.Pages.SectionForStudent.SectionEnrollModel
+
+@{
+    ViewData["Title"] = "SectionEnroll";
+}
+<h1>
+Sections for @Html.DisplayFor(model => model.Spring2024_Group2_Sections.FirstOrDefault().serviceName)
+</h1> 
+@*
+<p>
+    There may be a discrepency between the service selected and the name displayed.
+    This occurs in the Database. Our (2024_Group2) sections do not match the service IDs
+    given in the table where we pull the services from (2023_Group1)
+</p>
+*@
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].serviceID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].serviceName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].EndDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].weekDay)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].startTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].endTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections[0].status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Spring2024_Group2_Sections) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.serviceID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.serviceName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.weekDay)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.startTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.endTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.status)
+            </td>
+                      @*  Student does not need to access these buttons. The details tab just says the same thing<td>
+                <a asp-page="./Edit" asp-route-id="@item.sectionID">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.sectionID">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.sectionID">Delete</a>
+            </td> *@
+            <td>
+                <form method="post">
+                    <input type="hidden" name="sectionID" value="@item.sectionID" />
+                    <input type="hidden" name="serviceID" value="@item.serviceID" />
+                        <input type="hidden" name="serviceName" value="@item.serviceName" />
+                        <input type="hidden" name="StartDate" value="@item.StartDate" />
+                        <input type="hidden" name="EndDate" value="@item.EndDate" />
+                        <input type="hidden" name="weekDay" value="@item.weekDay" />
+                        <input type="hidden" name="startTime" value="@item.startTime" />
+                        <input type="hidden" name="endTime" value="@item.endTime" />
+                        <input type="hidden" name="status" value="@item.status" />
+                        <input type="submit" value="Enroll" />
+                </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

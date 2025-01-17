@@ -1,0 +1,83 @@
+﻿@page
+@model CS395SI_Spring2023_Group1.Pages.Sections.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create New Section</h1>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.serviceID" class="control-label">Service ID</label>
+                <input asp-for="Spring2024_Group2_Sections.serviceID" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.serviceID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.serviceName" class="control-label">Section Name</label>
+                <input asp-for="Spring2024_Group2_Sections.serviceName" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.serviceName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.StartDate" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.StartDate" class="form-control" type="date" />
+                <span asp-validation-for="Spring2024_Group2_Sections.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.EndDate" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.EndDate" class="form-control" type="date" />
+                <span asp-validation-for="Spring2024_Group2_Sections.EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.weekDay" class="control-label">Week Day: </label>
+                <select asp-for="Spring2024_Group2_Sections.weekDay" class="form-control">
+                   <option value="">Select from list</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                    <option value="Sunday">Sunday</option>
+                  </select>
+                <span asp-validation-for="Spring2024_Group2_Sections.weekDay" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.startTime" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.startTime" class="form-control" type="time" />
+                <span asp-validation-for="Spring2024_Group2_Sections.startTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.endTime" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.endTime" class="form-control" type="time"/>
+                <span asp-validation-for="Spring2024_Group2_Sections.endTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.status" class="control-label"></label>
+                <select asp-for="Spring2024_Group2_Sections.status" class="form-control">
+                <option value="">Select from list</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="ended">Ended</option>
+            </select>
+                <span asp-validation-for="Spring2024_Group2_Sections.status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

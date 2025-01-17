@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Krumpin 4 Success </title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CS395SI_Spring2023_Group1.styles.css" asp-append-version="true" />
+    
+    
+</head>
+
+<body>
+    <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow ">
+                <div class="container-fluid">
+                    <a class="navbar-brand text-yellow" style="color:#c39a4b" asp-area="" asp-page="/Index">Krumpin 4 Success</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                        <div class="navbar-nav ms-auto">
+                           <ul class="navbar-nav flex-grow-1">
+                                 <li class="nav-item">
+                                    <b> <a class="nav-link text-yellow" style="color:#c39a4b" asp-area="" asp-page="/Index">Home</a> </b>
+                                 </li>
+                                 @if (User.IsInRole("Admin"))
+                                 {
+                                     <li class="nav-item">
+                                        <b> <a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Index">Registered Users</a></b>
+                                     </li>
+                                 }
+                                 @if (User.Identity.IsAuthenticated)
+                                {
+                                    <li class="nav-item">
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <b> <a class="nav-link" style="color:#c39a4b" href="/ServicesForAdmin/Index">Services</a> </b>
+                                        }
+                                        else
+                                        {
+                                            <b> <a class="nav-link" style="color:#c39a4b" href="/MySchedules/Index">My Services</a> </b>
+                                        }
+                                    </li>
+                                    <li class="nav-item">
+                                        <b> <a class="nav-link" style="color:#c39a4b" href="/Identity/Pages/Account/Manage/Index">View Account</a> </b>
+                                    </li>
+                                    <li class="nav-item">
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            
+                                        }
+                                        else
+                                        {
+                                            <b><a class="nav-link" style="color:#c39a4b" href="https://localhost:7115/StudentSchedule/AvailableService">Register For Service</a></b>
+                                        }
+                                    </li>
+                                    <li class="nav-item">
+                                        <b> <a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Create">Register</a> </b>
+                                    </li>
+                                    <li class="nav-item">
+                                        <b> <a class="nav-link" style="color:#c39a4b" href="/Identity/Pages/Account/Logout">Log Out</a> </b>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted yellow-text">
+        <div class="container" style="color:#c39a4b">
+            &copy; 2024 - Krumpin 4 Success  - <a asp-area="" asp-page="/Privacy" style="color:#c39a4b">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

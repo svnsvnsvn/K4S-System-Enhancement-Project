@@ -1,0 +1,68 @@
+﻿@page
+@model CS395SI_Spring2023_Group1.Pages.Sections.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1> @Html.DisplayFor(model => model.Spring2024_Group2_Sections.serviceName) - Edit</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Spring2024_Group2_Sections.sectionID" />
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.serviceID" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.serviceID" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.serviceID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.serviceName" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.serviceName" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.serviceName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.StartDate" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.StartDate" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.EndDate" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.EndDate" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.weekDay" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.weekDay" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.weekDay" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.startTime" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.startTime" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.startTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.endTime" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.endTime" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.endTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Spring2024_Group2_Sections.status" class="control-label"></label>
+                <input asp-for="Spring2024_Group2_Sections.status" class="form-control" />
+                <span asp-validation-for="Spring2024_Group2_Sections.status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

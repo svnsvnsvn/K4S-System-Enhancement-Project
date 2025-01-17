@@ -1,0 +1,114 @@
+html {
+    font-size: 20px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+:root {
+    --k4sgold: #c39a46; /* Gold that matches the K4S logo */
+}
+
+
+
+body {
+    margin-bottom: 60px;
+    background-color: white;
+    color: #c39a4b;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+filter {
+}
+
+tbody {
+    color: #c39a4b;
+}
+
+thead {
+    color: #c39a4b;
+}
+
+.nav-item {
+    font: bold;
+}
+
+.navbar-nav > li:hover {
+    background-color: #2b56a1;
+    text-decoration: underline;
+}
+
+
+
+
+
+.yellow-text {
+    color: yellow;
+}
+
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+
+.navbar {
+    background-color: #1b3665;
+}
+
+.footer {
+    background-color: #1b3665;
+}
+
+#registrationFormHeaders {
+    color: var(--k4sgold);
+    font-size: 1.5rem;
+    text-decoration: underline;
+    padding-top 0.3rem;
+    padding-bottom: 0.5rem;
+}
+
+.registrationDetails, .form-group {
+    color: #1b3665;
+    padding-bottom: .6rem;
+}
+
+.form-group > .btn {
+    background-color: #1b3665;
+}
+
+.form-group > .btn:hover {
+    background-color: var(--k4sgold);
+}
+
+.btn1 {
+    border: 2px solid #000;
+    border-radius: 2px;
+    background-color: #1b3665;
+    color: white;
+    padding: 0.1rem 0.5rem;
+    text-align: center;
+    text-decoration: none;
+   
+    cursor: pointer;
+}
+
+    .btn1:hover {
+        background-color: var(--k4sgold);
+        color: white;
+    }
+.fontColorBlue {
+    color: #1b3665;
+}
