@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CS395SI_Spring2023_Group1")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f8917ad37bdab787b8c91af54f743e86bad114a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b036728670c7374941f33a2b60bddf163f6cc4de")]
 [assembly: System.Reflection.AssemblyProductAttribute("CS395SI_Spring2023_Group1")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CS395SI_Spring2023_Group1")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

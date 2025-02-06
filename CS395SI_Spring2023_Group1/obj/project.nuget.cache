@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "e86wGzsehAw=",
+  "dgSpecHash": "vdMYpqNT8i8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\mzeng\\Downloads\\CS395SI Spring 2024 Group 2 (18)\\CS395SI_Spring2023_Group1\\CS395SI_Spring2023_Group1.csproj",
+  "projectFilePath": "C:\\Users\\mzeng\\source\\repos\\CS395SI_New_repo_Group3\\CS395SI_Spring2023_Group1\\CS395SI_Spring2023_Group1.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mzeng\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\mzeng\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

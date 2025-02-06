@@ -11468,11 +11468,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mzeng\\Downloads\\CS395SI Spring 2024 Group 2 (18)\\CS395SI_Spring2023_Group1\\CS395SI_Spring2023_Group1.csproj",
+      "projectUniqueName": "C:\\Users\\mzeng\\source\\repos\\CS395SI_New_repo_Group3\\CS395SI_Spring2023_Group1\\CS395SI_Spring2023_Group1.csproj",
       "projectName": "CS395SI_Spring2023_Group1",
-      "projectPath": "C:\\Users\\mzeng\\Downloads\\CS395SI Spring 2024 Group 2 (18)\\CS395SI_Spring2023_Group1\\CS395SI_Spring2023_Group1.csproj",
+      "projectPath": "C:\\Users\\mzeng\\source\\repos\\CS395SI_New_repo_Group3\\CS395SI_Spring2023_Group1\\CS395SI_Spring2023_Group1.csproj",
       "packagesPath": "C:\\Users\\mzeng\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mzeng\\Downloads\\CS395SI Spring 2024 Group 2 (18)\\CS395SI_Spring2023_Group1\\obj\\",
+      "outputPath": "C:\\Users\\mzeng\\Source\\Repos\\CS395SI_New_repo_Group3\\CS395SI_Spring2023_Group1\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
