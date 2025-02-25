@@ -7,7 +7,7 @@ namespace CS395SI_Spring2023_K4S.Model
     public class Spring2023_Group1_Profile_Sys
     {
         // All of the nullable types (e.g. string?, DateTime?) are variables that don't need to be filled out.
-
+        public int ID { get; set; } 
         [Display(Name = "Name")]
         public string Name              { get; set; }
         [Key]
@@ -91,4 +91,5 @@ namespace CS395SI_Spring2023_K4S.Model
         [Display(Name = "Status")]
         public string ApplicationStatus { get; set; } = "Pending"; // Pending, Approved or Denied
     }
+
 }

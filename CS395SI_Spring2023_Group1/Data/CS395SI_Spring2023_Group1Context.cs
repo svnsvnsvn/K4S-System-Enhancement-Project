@@ -15,11 +15,15 @@ namespace CS395SI_Spring2023_Group1.Data
         }
 
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2023_Group1_Profile_Sys> Spring2023_Group1_Profile_Sys { get; set; } = default!;
+
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2023_Group1_Services> Spring2023_Group1_Services { get; set; } = default!;
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2023_Group1_Scheduling_Form> Spring2023_Group1_Scheduling_Form { get; set; } = default!;
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2023_Group1_Schedules>? Spring2023_Group1_Schedules { get; set; }
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2024_Group2_Schedule>? Spring2024_Group2_Schedule { get; set; }
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2024_Group2_Sections>? Spring2024_Group2_Sections { get; set; }
         public DbSet<CS395SI_Spring2023_K4S.Model.Spring2024_Group2_Session>? Spring2024_Group2_Session { get; set; }
+
+        public DbSet<CS395SI_Spring2023_K4S.Model.Spring2025_Group3_Attendance>? Spring2025_Group3_Attendance { get; set; }
+
     }
 }

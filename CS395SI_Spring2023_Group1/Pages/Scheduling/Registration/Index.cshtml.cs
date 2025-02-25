@@ -23,17 +23,56 @@ namespace CS395SI_Spring2023_Group1.Pages.Registration
 
         public IList<Spring2023_Group1_Profile_Sys> Spring2023_Group1_Profile_Sys { get;set; } = default!;
 
+        [BindProperty(SupportsGet = true)]
+        public string? SearchQuery { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string? FilterBy { get; set; }
+
         public async Task OnGetAsync()
         {
-            if (_context.Spring2023_Group1_Profile_Sys != null)
+            if (_context.Spring2023_Group1_Profile_Sys == null)
             {
-                Spring2023_Group1_Profile_Sys = await _context.Spring2023_Group1_Profile_Sys.ToListAsync();
+                Spring2023_Group1_Profile_Sys = new List<Spring2023_Group1_Profile_Sys>();
+                return;
             }
+
+            var students = _context.Spring2023_Group1_Profile_Sys.AsQueryable();
+
+            if (string.IsNullOrWhiteSpace(SearchQuery))
+            {
+                Spring2023_Group1_Profile_Sys = await students.ToListAsync();
+                return;
+            }
+            
+            switch (FilterBy)
+            {
+                case "Email":
+                    students = students.Where(s => s.Email.Contains(SearchQuery));
+                    break;
+                case "PhoneNum":
+                    students = students.Where(s => s.PhoneNum.Contains(SearchQuery));
+                    break;
+                case "Address":
+                    students = students.Where(s => s.Address.Contains(SearchQuery));
+                    break;
+                case "ApplicationStatus":
+                    students = students.Where(s => s.ApplicationStatus.Contains(SearchQuery));
+                    break;
+                default: // Default is name search
+                    students = students.Where(s => s.Name.Contains(SearchQuery));
+                    break;
+            }
+
+
+            Spring2023_Group1_Profile_Sys = await students.ToListAsync();
         }
+
         public IActionResult OnPost(string StudentEmail)
         {
             HttpContext.Session.SetString("studentEmail", StudentEmail);
             return RedirectToPage("../../StudentSchedule/Index");
         }
+
     }
 }

@@ -14,7 +14,7 @@ html {
 }
 
 :root {
-    --k4sgold: #c39a46; /* Gold that matches the K4S logo */
+    --k4sgold: #c39a46; 
 }
 
 
@@ -29,9 +29,6 @@ h2 {
     font-size: 20px;
 }
 
-filter {
-}
-
 tbody {
     color: #c39a4b;
 }
@@ -40,18 +37,108 @@ thead {
     color: #c39a4b;
 }
 
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9; 
+}
+tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.approved {
+    background: linear-gradient(135deg, #d4a64c, #c39a4b); 
+    color: #1b1b1b;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); 
+}
+
+.pending {
+    background-color: rgba(45, 78, 133, 0.85);
+    color: white;
+    border: 1px solid #2d4e85;
+}
+
+.action-buttons a {
+    margin-right: 6px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px; 
+}
+
+.action-buttons .btn {
+    width: 30px; 
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 16px;
+    transition: all 0.2s ease-in-out;
+}
+
+.edit-btn {
+    background-color: #6c757d; 
+    color: white;
+    border: none;
+}
+.edit-btn:hover {
+    background-color: var(--k4sgold); 
+    transform: scale(1.1);
+}
+
+
+.details-btn {
+    background-color: transparent;
+    color: #1b3665;
+    border: 2px solid #1b3665;
+}
+.details-btn:hover {
+    background-color: #1b3665;
+    color: white;
+    transform: scale(1.1);
+}
+
+.delete-btn {
+    background-color: #a83232;
+    color: white;
+    border: 1px solid #a83232;
+}
+.delete-btn:hover {
+    background-color: #8c2b2b;
+    transform: scale(1.1);
+}
+
+.sections-btn, .attendance-btn {
+    background: #1b3665; 
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.sections-btn:hover, .attendance-btn:hover {
+    background: var(--k4sgold);
+    transform: scale(1.1);
+}
+
 .nav-item {
     font: bold;
 }
 
 .navbar-nav > li:hover {
-    background-color: #2b56a1;
+    background-color: #1B2A4E;
     text-decoration: underline;
 }
-
-
-
-
 
 .yellow-text {
     color: yellow;
@@ -76,7 +163,7 @@ thead {
     color: var(--k4sgold);
     font-size: 1.5rem;
     text-decoration: underline;
-    padding-top 0.3rem;
+    padding-top: 0.3rem;
     padding-bottom: 0.5rem;
 }
 
@@ -109,6 +196,114 @@ thead {
         background-color: var(--k4sgold);
         color: white;
     }
+    
 .fontColorBlue {
     color: #1b3665;
+}
+
+/* Search bar */
+.search-button {
+    border: transparent;
+    background-color: transparent;
+    padding: 0;
+}
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 5px 5px; 
+    border: 2.5px solid #1f3b70; 
+    border-radius: 15px; 
+    width: 300px; 
+    height: 40px;
+    background-color: #F4F5F7; 
+}
+
+.search-container:hover {
+    border: 2.5px solid var(--k4sgold); 
+}
+
+.search-container input[type="text"] {
+    flex: 1;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    font-size: 14px;
+    padding: 5px;
+    color: #333;
+}
+
+.search-container input::placeholder {
+    color: #999;
+    font-size: 14px;
+}
+
+.search-container input[type="submit"] {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 16px;
+    color: #1f3b70; 
+}
+
+.search-container input[type="submit"]:hover {
+    color: #142850; 
+}
+
+
+.search-icons {
+    width: max-content;
+    white-space:nowrap;
+}
+
+.subOptions {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.hidden {
+    display: none;
+}
+
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-dropdown select {
+    position: absolute;
+    top: 10px; 
+    left: 100px;
+    z-index: 10;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 5px;
+    width: 120px;
+    border-radius: 5px;
+}
+
+
+.filter-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+
+.registeredUsers {
+    display: flex;
+    flex-direction: column;
+}
+
+.reset-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+img.icon:hover {
+    fill: var(--k4sgold);
 }

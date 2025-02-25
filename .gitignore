@@ -1,0 +1,28 @@
+# Ignore build output directories
+bin/
+obj/
+
+# User-specific files
+.vs/
+.vscode/
+.idea/
+
+# Ignore NuGet packages and configurations
+packages/
+.nuget/
+
+# Ignore log and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Ignore compiled binaries and symbols
+*.dll
+*.exe
+*.pdb
+
+# Ignore database models
+*.dbmdl
+
+.fake

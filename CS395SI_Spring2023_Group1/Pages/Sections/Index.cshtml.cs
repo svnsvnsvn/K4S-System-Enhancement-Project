@@ -24,14 +24,27 @@ namespace CS395SI_Spring2023_Group1.Pages.Sections
 
         public async Task OnGetAsync(string ServiceID)
         {
-            //if (_context.Spring2024_Group2_Sections != null)
-            //{
-            //   Spring2024_Group2_Sections = await _context.Spring2024_Group2_Sections.ToListAsync();
-            // }
+            if (_context.Spring2024_Group2_Sections != null)
+            {
+              Spring2024_Group2_Sections = await _context.Spring2024_Group2_Sections.ToListAsync();
+            }
+
             Spring2024_Group2_Sections = await _context.Spring2024_Group2_Sections
                 .Where(s => s.serviceID == ServiceID)
                 .ToListAsync();
-
         }
+
+        public IActionResult OnPost(string? sectionID)
+        {
+            if (string.IsNullOrEmpty(sectionID))
+            {
+                TempData["ErrorMessage"] = "Section ID is required.";
+                return Page(); // Stay on the same page if sectionID is missing
+            }
+
+            HttpContext.Session.SetString("sectionID", sectionID);
+            return RedirectToPage("/AttendanceForAdmin/Index"); // ✅ Corrected path
+        }
+
     }
 }
