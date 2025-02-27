@@ -33,5 +33,11 @@ namespace CS395SI_Spring2023_Group1.Pages.StudentSchedule
                 .Where (s=>s.StudentEmail == studentEmail)
                 .ToListAsync();
         }
+
+                public IActionResult OnPost(string ScheduleID)
+        {
+            HttpContext.Session.SetString("studentEmail", ScheduleID);
+            return RedirectToPage("/SectionEnroll/AvailableService");
+        }
     }
 }

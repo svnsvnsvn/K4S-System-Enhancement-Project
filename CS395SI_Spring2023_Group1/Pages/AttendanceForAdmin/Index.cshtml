@@ -1,11 +1,80 @@
 ﻿@page
-@model CS395SI_Spring2023_Group1.Pages.ServicesForAdmin.IndexModel
+@model CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = Model.SessionTitle;
 }
-<head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-</head>
-<link rel="stylesheet" href="~/CS395SI_Spring2023_Group1.styles.css" asp-append-version="true" />
-<h1>Attendance</h1>
+
+<h2 style="color: goldenrod; font-size: 24px;">@Model.SessionTitle</h2>
+<p style="font-size: 18px; font-weight: bold;">@Model.ScheduleTime</p>
+
+<table class="table" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr style="background-color: white; font-weight: bold; text-align: left;">
+            <th style="padding: 10px;">Student Email</th>
+            <th>
+                <a asp-page="./Index" asp-route-weekOffset="@(Model.WeekOffset - 1)">
+                    <span style="font-size: 24px;">⬅</span>
+                </a>
+            </th>
+            @for (var day = 0; day < 7; day++)
+            {
+                var currentDate = Model.WeekStart.AddDays(day);
+                <th style="padding: 10px; min-width: 80px; text-align: center;">@currentDate.ToString("MM/dd")</th>
+            }
+            <th>
+                <a asp-page="./Index" asp-route-weekOffset="@(Model.WeekOffset + 1)">
+                    <span style="font-size: 24px;">➡</span>
+                </a>
+            </th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var email in Model.AttendanceRecords.Select(a => a.Email).Distinct())
+        {
+            <tr>
+                <td style="color: #8B6F4E; font-weight: bold; padding: 10px;">@email</td>
+                <td></td> <!-- Empty cell to align arrows -->
+                @for (var day = 0; day < 7; day++)
+                {
+                    var currentDate = Model.WeekStart.AddDays(day);
+                    var record = Model.AttendanceRecords
+                        .FirstOrDefault(a => a.Email == email && a.CurrentDate.Date == currentDate);
+
+                    <td style="text-align: center; padding: 10px;">
+                        <form method="post">
+                            <input type="hidden" name="email" value="@email" />
+                            <input type="hidden" name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
+                            <select name="status" class="status-dropdown" onchange="this.form.submit()">
+                                <option value="present" selected="@(record?.AttendanceStatus == "present" ? "selected" : null)">Present</option>
+                                <option value="absent" selected="@(record?.AttendanceStatus == "absent" ? "selected" : null)">Absent</option>
+                                <option value="late" selected="@(record?.AttendanceStatus == "late" ? "selected" : null)">Late</option>
+                                <option value="excused" selected="@(record?.AttendanceStatus == "excused" ? "selected" : null)">Excused</option>
+                            </select>
+                        </form>
+                    </td>
+                }
+                <td></td> <!-- Empty cell to align arrows -->
+                <td>
+                    <a href="#" class="btn-action">View Individual</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .status-dropdown { width: 100%; padding: 5px; }
+    .btn-action {
+        background-color: #153A69;
+        color: white;
+        padding: 5px 15px;
+        text-decoration: none;
+        border-radius: 3px;
+        font-size: 14px;
+        display: block;
+        width: 120px;
+        text-align: center;
+    }
+</style>

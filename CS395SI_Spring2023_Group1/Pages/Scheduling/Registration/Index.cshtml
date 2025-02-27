@@ -4,16 +4,13 @@
 @{
     ViewData["Title"] = "Index";
 }
-<link rel="stylesheet" href="~/CS395SI_Spring2023_Group1.styles.css" asp-append-version="true" />
-<h1>Registered Users</h1>
 
-@* @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-{
-    <p style="color: red;">@Model.ErrorMessage</p>
-} *@
+<link rel="stylesheet" href="~/CS395SI_Spring2023_Group1.styles.css" asp-append-version="true" />
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
+
+<h1>Registered Users</h1>
 
 <div>
     <div class="subOptions">
@@ -21,8 +18,9 @@
 
         <form method="get" onsubmit="return validateSearchQuery()">
             <div class="search-container">
-                <input type="text" name="SearchQuery" placeholder="Search..." value="@Model.SearchQuery" id="searchQueryInput">
-                
+                <input type="text" name="SearchQuery" placeholder="Search..." value="@Model.SearchQuery"
+                    id="searchQueryInput">
+
                 <div class="search-icons">
                     <button type="submit" class="search-button">
                         <img class="icon" src="~/images/search.svg" alt="Search icon">
@@ -45,12 +43,13 @@
                     </div>
 
                     <button type="button" onclick="resetFilters()" class="reset-button">
-                        <img class="icon" src="~/images/delete.svg" alt="Delete icon">
+                        <img class="icon" src="~/images/delete.svg" alt="delete icon" width="22" height="22">
+                        @* <i class="icon fas fa-redo"></i> *@
                     </button>
                 </div>
             </div>
         </form>
-    </div> 
+    </div>
 
 
     <div class="studentsList">
@@ -100,12 +99,16 @@
                                 <a asp-page="./Details" asp-route-id="@item.Email" class="btn details-btn" title="View Details">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
-                                <a asp-page="./Delete" asp-route-id="@item.Email" class="btn delete-btn" title="Delete" onclick="return confirm('Are you sure you want to delete this item?');">
+                                <a asp-page="./Delete" asp-route-id="@item.Email" class="btn delete-btn" title="Delete"
+                                    onclick="return confirm('Are you sure you want to delete this item?');">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
                                 <form method="post">
                                     <input type="hidden" name="StudentEmail" value="@item.Email" />
-                                    <input type="submit" value="View schedule" />
+                                    <button type="submit" class="btn viewStudentSchedule-btn" title="View Student Schedule">
+                                        <i class="fas fa-stream"></i>
+
+                                    </button>
                                 </form>
                             </td>
 
@@ -138,8 +141,8 @@
     }
 
     function resetFilters() {
-        document.getElementById("searchQueryInput").value = "";  
-        document.getElementById("filterBy").value = "Name";  
-        window.location.href = window.location.pathname;  
+        document.getElementById("searchQueryInput").value = "";
+        document.getElementById("filterBy").value = "Name";
+        window.location.href = window.location.pathname;
     }
 </script>

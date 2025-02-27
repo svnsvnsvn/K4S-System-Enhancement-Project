@@ -115,7 +115,7 @@ tbody tr:nth-child(even) {
     transform: scale(1.1);
 }
 
-.sections-btn, .attendance-btn {
+.sections-btn, .attendance-btn, .viewStudentSchedule-btn, .enrollStudent-btn {
     background: #1b3665; 
     color: white;
     border: none;
@@ -126,7 +126,7 @@ tbody tr:nth-child(even) {
     transition: all 0.2s ease-in-out;
 }
 
-.sections-btn:hover, .attendance-btn:hover {
+.sections-btn:hover, .attendance-btn:hover, .viewStudentSchedule-btn:hover, .enrollStudent-btn:hover{
     background: var(--k4sgold);
     transform: scale(1.1);
 }
@@ -299,11 +299,16 @@ tbody tr:nth-child(even) {
 }
 
 .reset-button {
-    background: transparent;
+    background: none;
+    cursor: pointer;
     border: none;
     padding: 0;
 }
 
-img.icon:hover {
+img.icon:hover, i:hover {
     fill: var(--k4sgold);
+}
+
+.search-container i {
+    color: #ABB7C2;
 }
