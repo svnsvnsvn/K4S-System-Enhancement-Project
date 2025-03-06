@@ -63,7 +63,9 @@ namespace CS395SI_Spring2023_Group1.Pages.SectionForStudent
             _context.Spring2024_Group2_Schedule.Add(groupSchedule);
             _context.SaveChanges();
 
-            return RedirectToAction("./StudentSchedule/Index");
+            return RedirectToAction("AvailableService/Index"); // SHOULD NOT BE REDIRECTING. SHOULD just change the textof the button
+            // return null; // SHOULD NOT BE REDIRECTING. SHOULD just change the textof the button
+
         }
     }
 }

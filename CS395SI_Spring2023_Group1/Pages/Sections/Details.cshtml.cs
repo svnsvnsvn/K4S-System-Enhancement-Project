@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,14 +10,16 @@ namespace CS395SI_Spring2023_Group1.Pages.Sections
 {
     public class DetailsModel : PageModel
     {
-        private readonly CS395SI_Spring2023_Group1.Data.CS395SI_Spring2023_Group1Context _context;
+        private readonly CS395SI_Spring2023_Group1Context _context;
 
-        public DetailsModel(CS395SI_Spring2023_Group1.Data.CS395SI_Spring2023_Group1Context context)
+        public DetailsModel(CS395SI_Spring2023_Group1Context context)
         {
             _context = context;
         }
 
-      public Spring2024_Group2_Sections Spring2024_Group2_Sections { get; set; } = default!; 
+        public Spring2024_Group2_Sections Spring2024_Group2_Sections { get; set; } = default!;
+        public string ServiceName { get; set; } = string.Empty;
+        public string ServiceID { get; set; } = string.Empty;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -28,15 +28,24 @@ namespace CS395SI_Spring2023_Group1.Pages.Sections
                 return NotFound();
             }
 
-            var spring2024_group2_sections = await _context.Spring2024_Group2_Sections.FirstOrDefaultAsync(m => m.sectionID == id);
-            if (spring2024_group2_sections == null)
+            var section = await _context.Spring2024_Group2_Sections
+                .FirstOrDefaultAsync(m => m.sectionID == id);
+
+            if (section == null)
             {
                 return NotFound();
             }
-            else 
-            {
-                Spring2024_Group2_Sections = spring2024_group2_sections;
-            }
+
+            // Assign retrieved section
+            Spring2024_Group2_Sections = section;
+            ServiceID = section.serviceID;
+
+            // Fetch the corresponding service name
+            ServiceName = await _context.Spring2023_Group1_Services
+                .Where(s => s.ServiceID == section.serviceID)
+                .Select(s => s.ServiceName)
+                .FirstOrDefaultAsync() ?? "Unknown Service";
+
             return Page();
         }
     }

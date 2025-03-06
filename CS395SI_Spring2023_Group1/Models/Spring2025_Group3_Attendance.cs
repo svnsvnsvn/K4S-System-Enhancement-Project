@@ -10,7 +10,7 @@ namespace CS395SI_Spring2023_K4S.Model
     {
         [Key]
         [StringLength(16)]
-        public string AttendanceID { get; set; } 
+        public int AttendanceID { get; set; } 
 
         [Required]
         [EmailAddress]

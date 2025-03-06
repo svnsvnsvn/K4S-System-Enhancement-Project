@@ -2,66 +2,41 @@
 @model CS395SI_Spring2023_Group1.Pages.Sections.DetailsModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Section Details";
 }
 
-<h1>@Html.DisplayFor(model => model.Spring2024_Group2_Sections.serviceName) Details</h1>
+<h1>Details for @Model.ServiceName</h1>
 
 <div>
-    
     <hr />
     <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.serviceID)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.serviceID)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.serviceName)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.serviceName)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.StartDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.StartDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.EndDate)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.EndDate)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.weekDay)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.weekDay)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.startTime)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.startTime)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.endTime)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.endTime)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Spring2024_Group2_Sections.status)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Spring2024_Group2_Sections.status)
-        </dd>
+        <dt class="col-sm-2">Service ID</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.serviceID</dd>
+
+        <dt class="col-sm-2">Service Name</dt>
+        <dd class="col-sm-10">@Model.ServiceName</dd>
+
+        <dt class="col-sm-2">Start Date</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.StartDate</dd>
+
+        <dt class="col-sm-2">End Date</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.EndDate</dd>
+
+        <dt class="col-sm-2">Week Day</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.weekDay</dd>
+
+        <dt class="col-sm-2">Start Time</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.startTime</dd>
+
+        <dt class="col-sm-2">End Time</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.endTime</dd>
+
+        <dt class="col-sm-2">Status</dt>
+        <dd class="col-sm-10">@Model.Spring2024_Group2_Sections.status</dd>
     </dl>
 </div>
+
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.Spring2024_Group2_Sections?.sectionID">Edit</a> |
-    <a asp-page="./Index">Back to List</a>
+    <a asp-page="./Index" asp-route-serviceID="@Model.ServiceID">Back to List</a>
 </div>

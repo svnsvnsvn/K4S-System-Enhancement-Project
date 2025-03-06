@@ -25,7 +25,6 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
         public string SessionTitle { get; set; } = "N/A"; 
         public string ScheduleTime { get; set; } = "N/A"; 
 
-        // ✅ Add these properties to resolve the error
         [BindProperty(SupportsGet = true)]
         public int WeekOffset { get; set; } = 0; // Allows week navigation
 
@@ -33,7 +32,6 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
 
         public async Task OnGetAsync()
         {
-            // ✅ Calculate the start of the selected week
             WeekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek + (WeekOffset * 7));
 
             if (_context.Spring2025_Group3_Attendance != null)
@@ -78,7 +76,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
             {
                 _context.Spring2025_Group3_Attendance.Add(new Spring2025_Group3_Attendance
                 {
-                    AttendanceID = Guid.NewGuid().ToString(),
+                    // AttendanceID = Guid.NewGuid().ToString(),
                     Email = email,
                     ServiceID = null,
                     SectionID = 0,

@@ -20,30 +20,42 @@ namespace CS395SI_Spring2023_Group1.Pages.Sections
             _context = context;
         }
 
-        public IList<Spring2024_Group2_Sections> Spring2024_Group2_Sections { get;set; } = default!;
+        public IList<Spring2024_Group2_Sections> Spring2024_Group2_Sections { get; set; } = default!;
+        public string ServiceID { get; set; } = string.Empty;
+        public string ServiceName { get; set; } = string.Empty;
 
-        public async Task OnGetAsync(string ServiceID)
+        public async Task<IActionResult> OnGetAsync(string serviceID)
         {
-            if (_context.Spring2024_Group2_Sections != null)
+            if (string.IsNullOrEmpty(serviceID))
             {
-              Spring2024_Group2_Sections = await _context.Spring2024_Group2_Sections.ToListAsync();
+                return RedirectToPage("/Services/Index"); 
             }
 
+            ServiceID = serviceID;
+
             Spring2024_Group2_Sections = await _context.Spring2024_Group2_Sections
-                .Where(s => s.serviceID == ServiceID)
+                .Where(s => s.serviceID == serviceID)
                 .ToListAsync();
+
+            ServiceName = await _context.Spring2023_Group1_Services
+                .Where(s => s.ServiceID == serviceID)
+                .Select(s => s.ServiceName)
+                .FirstOrDefaultAsync() ?? "Unknown Service";
+
+            return Page();
         }
+
 
         public IActionResult OnPost(string? sectionID)
         {
             if (string.IsNullOrEmpty(sectionID))
             {
                 TempData["ErrorMessage"] = "Section ID is required.";
-                return Page(); // Stay on the same page if sectionID is missing
+                return Page(); 
             }
 
             HttpContext.Session.SetString("sectionID", sectionID);
-            return RedirectToPage("/AttendanceForAdmin/Index"); // ✅ Corrected path
+            return RedirectToPage("/AttendanceForAdmin/Index"); 
         }
 
     }
