@@ -33,7 +33,7 @@ namespace CS395SI_Spring2023_Group1.Pages.SectionForStudent
             var serviceID = Request.Form["ServiceID"];
             var serviceName = Request.Form["ServiceName"];
             var scheduleID = Request.Form["ScheduleID"];
-
+            var sectionID = Request.Form["sectionID"];
 
             TimeSpan startTime = TimeSpan.Zero;
             TimeSpan endtime = TimeSpan.Zero;
@@ -48,11 +48,20 @@ namespace CS395SI_Spring2023_Group1.Pages.SectionForStudent
             var weekDay = Request.Form["WeekDay"];
             var status = "Pending";
             string studentEmail = HttpContext.Session.GetString("studentEmail");
+
+            // Ensure sectionID is a valid integer
+            if (!int.TryParse(sectionID, out int validSectionID))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid section ID.");
+                return Page(); // Return with an error message
+            }
+
             var groupSchedule = new Spring2024_Group2_Schedule
             {
                 ServiceID = serviceID,
               
                 ServiceName = serviceName,
+                SectionID = validSectionID,
                 StartTime = startTime,
                 EndTime = endtime,
                 StartDate = StartDate,
@@ -60,11 +69,11 @@ namespace CS395SI_Spring2023_Group1.Pages.SectionForStudent
                 WeekDay = weekDay,
                 StudentEmail=studentEmail
             };
+
             _context.Spring2024_Group2_Schedule.Add(groupSchedule);
             _context.SaveChanges();
 
-            return RedirectToAction("AvailableService/Index"); // SHOULD NOT BE REDIRECTING. SHOULD just change the textof the button
-            // return null; // SHOULD NOT BE REDIRECTING. SHOULD just change the textof the button
+            return RedirectToAction("./Index");
 
         }
     }
