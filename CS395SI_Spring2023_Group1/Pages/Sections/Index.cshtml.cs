@@ -55,7 +55,9 @@ namespace CS395SI_Spring2023_Group1.Pages.Sections
             }
 
             HttpContext.Session.SetString("sectionID", sectionID);
-            return RedirectToPage("/AttendanceForAdmin/Index"); 
+            // return RedirectToPage("/AttendanceForAdmin/Index"); 
+            return RedirectToPage("/AttendanceForAdmin/Index", new { sectionID });
+
         }
 
     }
