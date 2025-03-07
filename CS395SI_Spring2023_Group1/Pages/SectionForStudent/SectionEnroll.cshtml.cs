@@ -21,60 +21,65 @@ namespace CS395SI_Spring2023_Group1.Pages.SectionForStudent
 
         public IList<Spring2024_Group2_Sections> Spring2024_Group2_Sections { get;set; } = default!;
 
-        public async Task OnGetAsync(string ServiceID)
+        public async Task<IActionResult> OnGetAsync(string ServiceID)
         {
-            Spring2024_Group2_Sections=await _context.Spring2024_Group2_Sections
-                .Where (s => s.serviceID == ServiceID)
-                .ToListAsync();
-        }
-
-        public IActionResult OnPost()
-        {
-            var serviceID = Request.Form["ServiceID"];
-            var serviceName = Request.Form["ServiceName"];
-            var scheduleID = Request.Form["ScheduleID"];
-            var sectionID = Request.Form["sectionID"];
-
-            TimeSpan startTime = TimeSpan.Zero;
-            TimeSpan endtime = TimeSpan.Zero;
-            DateTime StartDate = DateTime.MinValue;
-            DateTime EndDate = DateTime.MinValue;
-
-            TimeSpan.TryParse(Request.Form["StartTime"],out startTime);
-            TimeSpan.TryParse(Request.Form["EndTime"],out endtime);
-            DateTime.TryParse(Request.Form["StartDate"],out StartDate);
-            DateTime.TryParse(Request.Form["EndDate"], out EndDate);
-
-            var weekDay = Request.Form["WeekDay"];
-            var status = "Pending";
             string studentEmail = HttpContext.Session.GetString("studentEmail");
 
-            // Ensure sectionID is a valid integer
+            Spring2024_Group2_Sections = await _context.Spring2024_Group2_Sections
+                .Where(s => s.serviceID == ServiceID)
+                .ToListAsync();
+
+            var enrolledSections = await _context.Spring2024_Group2_Schedule
+                .Where(s => s.StudentEmail == studentEmail)
+                .Select(s => s.SectionID)
+                .ToListAsync();
+
+            ViewData["EnrolledSections"] = enrolledSections;
+
+            return Page();
+        }
+
+
+        public async Task<IActionResult> OnPostAsync()
+        {
+            var serviceID = Request.Form["serviceID"];
+            var serviceName = Request.Form["serviceName"];
+            var sectionID = Request.Form["sectionID"];
+
             if (!int.TryParse(sectionID, out int validSectionID))
             {
-                ModelState.AddModelError(string.Empty, "Invalid section ID.");
-                return Page(); // Return with an error message
+                return new JsonResult(new { success = false, message = "Invalid section ID." });
+            }
+
+            string studentEmail = HttpContext.Session.GetString("studentEmail");
+
+            bool alreadyEnrolled = await _context.Spring2024_Group2_Schedule
+                .AnyAsync(s => s.StudentEmail == studentEmail && s.SectionID == validSectionID);
+
+            if (alreadyEnrolled)
+            {
+                return new JsonResult(new { success = false, message = "You are already enrolled in this course." });
             }
 
             var groupSchedule = new Spring2024_Group2_Schedule
             {
                 ServiceID = serviceID,
-              
                 ServiceName = serviceName,
                 SectionID = validSectionID,
-                StartTime = startTime,
-                EndTime = endtime,
-                StartDate = StartDate,
-                EndDate = EndDate,
-                WeekDay = weekDay,
-                StudentEmail=studentEmail
+                StartDate = DateTime.Parse(Request.Form["StartDate"]),
+                EndDate = DateTime.Parse(Request.Form["EndDate"]),
+                WeekDay = Request.Form["weekDay"],
+                StartTime = TimeSpan.Parse(Request.Form["startTime"]),
+                EndTime = TimeSpan.Parse(Request.Form["endTime"]),
+                Status = "Pending",
+                StudentEmail = studentEmail
             };
 
             _context.Spring2024_Group2_Schedule.Add(groupSchedule);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return RedirectToAction("./Index");
-
+            return new JsonResult(new { success = true, sectionID = validSectionID });
         }
+
     }
 }

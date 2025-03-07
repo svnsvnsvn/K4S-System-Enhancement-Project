@@ -15,5 +15,6 @@ namespace CS395SI_Spring2023_K4S.Model
         public string WeekDay { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
+        public string Status { get; set; }
     }
 }
