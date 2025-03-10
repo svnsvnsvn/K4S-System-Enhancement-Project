@@ -26,13 +26,11 @@
                         <img class="icon" src="~/images/search.svg" alt="Search icon">
                     </button>
 
-                    <!-- Filter Dropdown -->
                     <div class="filter-dropdown">
                         <button type="button" class="filter-button" onclick="toggleFilterDropdown()">
                             <img class="icon" src="~/images/filter.svg" alt="Filter icon">
                         </button>
 
-                        <!-- Dropdown List (Initially Hidden) -->
                         <select name="FilterBy" id="filterBy" class="hidden">
                             <option value="Name" selected>Name</option>
                             <option value="Email">Email</option>
@@ -44,7 +42,6 @@
 
                     <button type="button" onclick="resetFilters()" class="reset-button">
                         <img class="icon" src="~/images/delete.svg" alt="delete icon" width="22" height="22">
-                        @* <i class="icon fas fa-redo"></i> *@
                     </button>
                 </div>
             </div>
@@ -87,11 +84,6 @@
                                 </span>
                             </td>
 
-                            @* <td class="action-buttons">
-                                <a asp-page="./Edit" asp-route-id="@item.Email" class="btn1 edit-btn">Edit</a>
-                                <a asp-page="./Details" asp-route-id="@item.Email" class="btn1 details-btn">Details</a>
-                                <a asp-page="./Delete" asp-route-id="@item.Email" class="btn1 delete-btn">Delete</a>
-                            </td>  *@
                             <td class="action-buttons">
                                 <a asp-page="./Edit" asp-route-id="@item.Email" class="btn edit-btn" title="Edit">
                                     <i class="fas fa-pencil-alt"></i>
@@ -111,9 +103,6 @@
                                     </button>
                                 </form>
                             </td>
-
-
-
                         </tr>
                     }
                 </tbody>
@@ -121,9 +110,6 @@
         }
     </div>
 </div>
-
-
-
 
 <script>
     function validateSearchQuery() {

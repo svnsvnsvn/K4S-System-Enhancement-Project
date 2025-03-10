@@ -5,6 +5,7 @@
     ViewData["Title"] = Model.SessionTitle;
 }
 
+<link rel="stylesheet" href="~/CS395SI_Spring2023_Group1.styles.css" asp-append-version="true" />
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -16,6 +17,12 @@
     <thead>
         <tr style="background-color: white; font-weight: bold; text-align: left;">
             <th style="padding: 10px;">Student Email</th>
+
+            @{
+                var today = DateTime.UtcNow.Date;
+                var nextWeekStart = Model.WeekStart.AddDays(7); // Start of the next week
+            }
+
             <th>
                 <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset - 1)">
                     <i class="fas fa-arrow-left"></i>
@@ -29,9 +36,12 @@
                 </th>
             }
             <th>
-                <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset + 1)">
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+                @if (nextWeekStart <= today)
+                {
+                    <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset + 1)">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                }
             </th>
             <th>Action</th>
         </tr>
@@ -57,6 +67,7 @@
                                 <option value="Present" selected="@(record?.AttendanceStatus == "Present" ? "selected" : null)">Present</option>
                                 <option value="Absent" selected="@(record?.AttendanceStatus == "Absent" ? "selected" : null)">Absent</option>
                                 <option value="Late" selected="@(record?.AttendanceStatus == "Late" ? "selected" : null)">Late</option>
+                                <option value="Excused" selected="@(record?.AttendanceStatus == "Excused" ? "selected" : null)">Excused</option>
                             </select>
                         </form>
                     </td>
@@ -69,22 +80,6 @@
         }
     </tbody>
 </table>
-
-<style>
-    .status-dropdown { width: 100%; padding: 5px; }
-    .btn-action {
-        background-color: #153A69;
-        color: white;
-        padding: 5px 15px;
-        text-decoration: none;
-        border-radius: 3px;
-        font-size: 14px;
-        display: block;
-        width: 120px;
-        text-align: center;
-    }
-</style>
-
 <script>
     async function submitAttendance(selectElement) {
         const form = selectElement.closest("form");
@@ -102,4 +97,36 @@
             console.error("Failed to update attendance.");
         }
     }
+    function updateDropdownStyle(selectElement) {
+        // Remove existing status classes
+        selectElement.classList.remove("status-present", "status-late", "status-excused", "status-absent");
+
+        // Get the selected value and log it
+        const selectedStatus = selectElement.value.trim();
+        console.log("Selected Status:", selectedStatus); // Debugging line
+
+        // Apply the appropriate class to change the background color of the dropdown
+        if (selectedStatus === "Present") {
+            console.log("Applying Green Background"); // Debugging line
+            selectElement.classList.add("status-present");
+        } else if (selectedStatus === "Late") {
+            selectElement.classList.add("status-late");
+        } else if (selectedStatus === "Excused") {
+            selectElement.classList.add("status-excused");
+        } else if (selectedStatus === "Absent") {
+            selectElement.classList.add("status-absent");
+        }
+    }
+
+
+    // Apply the correct colors on page load for pre-selected values
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".status-dropdown").forEach(select => {
+            updateDropdownStyle(select);
+            select.addEventListener("change", function() {
+                updateDropdownStyle(this);
+            });
+        });
+    });
+
 </script>

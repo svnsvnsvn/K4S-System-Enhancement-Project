@@ -153,18 +153,16 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
             }
         }
 
-
-
         public async Task<IActionResult> OnPostAsync()
         {
             string email = Request.Form["email"];
             DateTime date = DateTime.Parse(Request.Form["date"]);
             string status = Request.Form["status"];
 
-            var validStatuses = new List<string> { "Present", "Absent", "Late", "Not Marked" };
+            var validStatuses = new List<string> { "Present", "Absent", "Late", "Excused", "Not Marked" };
             if (!validStatuses.Contains(status))
             {
-                return BadRequest("Invalid attendance status. Allowed values: Present, Absent, Late, Not Marked.");
+                return BadRequest("Invalid attendance status. Allowed values: Present, Absent, Late, Excused, Not Marked.");
 
             }
 

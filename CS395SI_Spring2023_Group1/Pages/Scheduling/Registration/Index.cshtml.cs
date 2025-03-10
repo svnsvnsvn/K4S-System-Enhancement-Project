@@ -64,7 +64,6 @@ namespace CS395SI_Spring2023_Group1.Pages.Registration
                     break;
             }
 
-
             Spring2023_Group1_Profile_Sys = await students.ToListAsync();
         }
 

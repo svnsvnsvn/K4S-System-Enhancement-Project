@@ -330,3 +330,57 @@ img.icon:hover, i:hover {
     color: #666;
     cursor: not-allowed;
 }
+
+/*Attendance*/
+.status-dropdown { width: 100%; padding: 5px; }
+    .btn-action {
+        background-color: #153A69;
+        color: white;
+        padding: 5px 15px;
+        text-decoration: none;
+        border-radius: 3px;
+        font-size: 14px;
+        display: block;
+        width: 120px;
+        text-align: center;
+    }
+
+    .status-dropdown option[value="Present"] {
+        background-color: green;
+        color: white;
+    }
+
+    .status-dropdown option[value="Late"] {
+        background-color: yellow;
+        color: black;
+    }
+
+    .status-dropdown option[value="Excused"] {
+        background-color: grey;
+        color: white;
+    }
+
+    .status-dropdown option[value="Absent"] {
+        background-color: red;
+        color: white;
+    }
+
+    .status-present {
+        background-color: green !important;
+        color: white;
+    }
+
+    .status-late {
+        background-color: yellow;
+        color: black;
+    }
+
+    .status-excused {
+        background-color: grey;
+        color: white;
+    }
+
+    .status-absent {
+        background-color: red;
+        color: white;
+    }
