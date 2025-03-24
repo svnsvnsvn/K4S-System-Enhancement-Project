@@ -11,7 +11,64 @@
 </head>
 
 <h2 style="color: goldenrod; font-size: 24px;">@Model.SessionTitle</h2>
-<p style="font-size: 18px; font-weight: bold;">@Model.ScheduleTime</p>
+<p style="font-size: 18px; font-weight: bold;">Schedule: @Model.ScheduleTime</p>
+
+<div style="display: flex; align-items: center; justify-content: space-between;">
+    <!-- Class Overall Attendance Bar (Aligned to the Right) -->
+    <div class="attendance-container">
+        <label style="font-size: 14px;">Class Overall Attendance</label>
+        <div class="progress-wrapper">
+            <div class="progress">
+                <div class="progress-bar" role="progressbar"
+                     style="width: @(Model.ClassAttendancePercentage)%;"
+                     aria-valuenow="@(Model.ClassAttendancePercentage)"
+                     aria-valuemin="0" aria-valuemax="100">
+                </div>
+            </div>
+            <span class="progress-percentage">@(Model.ClassAttendancePercentage.ToString("0.0"))%</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .attendance-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        margin-left: 20px;
+        font-size: 14px;
+    }
+
+    /* Adjust layout for progress bar and percentage */
+    .progress-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .progress {
+        width: 150px; /* Smaller width */
+        height: 12px; /* Reduce height */
+        background-color: #f3f3f3;
+        border-radius: 5px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: #4CAF50;
+        transition: width 0.5s ease-in-out;
+    }
+
+    .progress-percentage {
+        font-size: 12px;
+        font-weight: bold;
+        color: #333;
+        min-width: 40px;
+    }
+</style>
 
 <table class="table" style="border-collapse: collapse; width: 100%;">
     <thead>
@@ -74,7 +131,11 @@
                 }
                 <td></td> 
                 <td>
-                    <a href="#" class="btn-action">View Individual</a>
+                    @{
+                        var studentScheduleID = Model.AttendanceRecords
+                            .FirstOrDefault(a => a.Email == email)?.ScheduleID ?? 0;
+                    }
+                    <a href="/AttendanceForStudent/Index?id=@studentScheduleID" class="btn-action">View Individual</a>
                 </td>
             </tr>
         }
@@ -98,16 +159,12 @@
         }
     }
     function updateDropdownStyle(selectElement) {
-        // Remove existing status classes
         selectElement.classList.remove("status-present", "status-late", "status-excused", "status-absent");
 
-        // Get the selected value and log it
         const selectedStatus = selectElement.value.trim();
-        console.log("Selected Status:", selectedStatus); // Debugging line
 
-        // Apply the appropriate class to change the background color of the dropdown
         if (selectedStatus === "Present") {
-            console.log("Applying Green Background"); // Debugging line
+            console.log("Applying Green Background");
             selectElement.classList.add("status-present");
         } else if (selectedStatus === "Late") {
             selectElement.classList.add("status-late");

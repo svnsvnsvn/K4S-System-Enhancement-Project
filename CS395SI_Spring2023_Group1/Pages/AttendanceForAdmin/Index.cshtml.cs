@@ -26,12 +26,14 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
         public string ScheduleTime { get; set; } = "N/A";
 
         [BindProperty(SupportsGet = true)]
-        public int SectionID { get; set; } 
+        public int SectionID { get; set; }
 
         [BindProperty(SupportsGet = true)]
-        public int WeekOffset { get; set; } = 0; 
+        public int WeekOffset { get; set; } = 0;
 
-        public DateTime WeekStart { get; set; } 
+        public DateTime WeekStart { get; set; }
+
+        public double ClassAttendancePercentage { get; set; } = 0;
 
         public async Task OnGetAsync(int sectionID)
         {
@@ -42,7 +44,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
             WeekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek + (WeekOffset * 7));
             if (WeekStart.DayOfWeek != DayOfWeek.Monday)
             {
-                WeekStart = WeekStart.AddDays(1); 
+                WeekStart = WeekStart.AddDays(1);
             }
 
             var sectionSchedule = await _context.Spring2024_Group2_Sections
@@ -74,7 +76,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
 
                 var enrolledStudents = await _context.Spring2024_Group2_Schedule
                 .Where(s => s.SectionID == sectionID)
-                .Select(s => new { s.StudentEmail, s.SectionID, s.ServiceID, s.ScheduleID }) 
+                .Select(s => new { s.StudentEmail, s.SectionID, s.ServiceID, s.ScheduleID })
                 .ToListAsync();
 
 
@@ -91,7 +93,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
                     if (!existsInProfile)
                     {
                         Console.WriteLine($"⚠ Skipping {student.StudentEmail} - Not found in Profile table!");
-                        continue; 
+                        continue;
                     }
 
                     Console.WriteLine($"Processing Student: {student.StudentEmail} - ScheduleID: {student.ScheduleID}");
@@ -111,7 +113,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
                                 Email = student.StudentEmail,
                                 SectionID = student.SectionID,
                                 ServiceID = student.ServiceID,
-                                ScheduleID = student.ScheduleID, 
+                                ScheduleID = student.ScheduleID,
                                 CurrentDate = currentDate,
                                 AttendanceStatus = "Not Marked"
                             });
@@ -136,23 +138,90 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
                     .OrderBy(a => a.CurrentDate)
                     .ToListAsync();
 
-                var firstRecord = AttendanceRecords.FirstOrDefault();
-                if (firstRecord?.ServiceID != null)
+
+                var activeStudentEmails = new List<string>();
+
+                foreach (var student in enrolledStudents)
                 {
-                    var session = await _context.Spring2023_Group1_Services
-                        .Where(s => s.ServiceID == firstRecord.ServiceID)
-                        .FirstOrDefaultAsync();
+                    bool existsInProfile = await _context.Spring2023_Group1_Profile_Sys
+                        .AnyAsync(p => p.Email == student.StudentEmail);
 
-                    if (session != null)
+                    if (!existsInProfile)
                     {
-                        SessionTitle = $"{session.ServiceName} (Section {sectionID})";
-                        ScheduleTime = ScheduleTime = $"{sectionSchedule.weekDay} {sectionSchedule.startTime:hh\\:mm} - {sectionSchedule.endTime:hh\\:mm} | {sectionSchedule.StartDate:MM/dd/yyyy} - {sectionSchedule.EndDate:MM/dd/yyyy}";
+                        Console.WriteLine($"⚠ Skipping {student.StudentEmail} - Not found in Profile table!");
+                        continue; // Skip this student for both display AND calculation
+                    }
 
+                    activeStudentEmails.Add(student.StudentEmail);
+
+                }
+
+                if (AttendanceRecords.Any())
+                {
+                    int activeStudentCount = activeStudentEmails.Count;
+                    int totalDays = AttendanceRecords
+                        .Where(a => activeStudentEmails.Contains(a.Email)) 
+                        .Select(a => a.CurrentDate)
+                        .Distinct()
+                        .Count();
+
+                    int totalAttendanceRecords = activeStudentCount * totalDays;
+                    int notMarkedCount = AttendanceRecords
+                        .Where(a => activeStudentEmails.Contains(a.Email)) 
+                        .Count(a => a.AttendanceStatus == "Not Marked");
+
+                    int presentCount = AttendanceRecords
+                        .Where(a => activeStudentEmails.Contains(a.Email))
+                        .Count(a => a.AttendanceStatus == "Present");
+                    int lateCount = AttendanceRecords
+                        .Where(a => activeStudentEmails.Contains(a.Email))
+                        .Count(a => a.AttendanceStatus == "Late");
+                    int excusedCount = AttendanceRecords
+                        .Where(a => activeStudentEmails.Contains(a.Email))
+                        .Count(a => a.AttendanceStatus == "Excused");
+                    int absentCount = AttendanceRecords
+                        .Where(a => activeStudentEmails.Contains(a.Email))
+                        .Count(a => a.AttendanceStatus == "Absent");
+
+                    // weights for different attendance statuses
+                    double presentWeight = 1.0;
+                    double lateWeight = 0.8;
+                    double excusedWeight = 0.5;
+                    double absentWeight = 0.0;
+
+                    int markedRecords = totalAttendanceRecords - notMarkedCount;
+
+                    if (markedRecords > 0)
+                    {
+                        double weightedSum =
+                            (presentCount * presentWeight) +
+                            (lateCount * lateWeight) +
+                            (excusedCount * excusedWeight) +
+                            (absentCount * absentWeight);
+
+                        ClassAttendancePercentage = (weightedSum / markedRecords) * 100;
+
+                    }
+
+
+                    var firstRecord = AttendanceRecords.FirstOrDefault();
+                    if (firstRecord?.ServiceID != null)
+                    {
+                        var session = await _context.Spring2023_Group1_Services
+                            .Where(s => s.ServiceID == firstRecord.ServiceID)
+                            .FirstOrDefaultAsync();
+
+                        if (session != null)
+                        {
+                            SessionTitle = $"{session.ServiceName} (Section {sectionID})";
+                            ScheduleTime = ScheduleTime = $"{sectionSchedule.weekDay} {sectionSchedule.startTime:hh\\:mm} - {sectionSchedule.endTime:hh\\:mm} | {sectionSchedule.StartDate:MM/dd/yyyy} - {sectionSchedule.EndDate:MM/dd/yyyy}";
+
+                        }
                     }
                 }
             }
         }
-
+        
         public async Task<IActionResult> OnPostAsync()
         {
             string email = Request.Form["email"];
