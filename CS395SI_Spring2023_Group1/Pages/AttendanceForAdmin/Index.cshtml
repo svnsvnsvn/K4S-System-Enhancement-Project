@@ -10,46 +10,466 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
-<h2 style="color: goldenrod; font-size: 24px;">@Model.SessionTitle</h2>
-<p style="font-size: 18px; font-weight: bold;">Schedule: @Model.ScheduleTime</p>
+<div class="attendance-header">
+    <div class="attendance-title">
+        <h2 class="session-title">@Model.SessionTitle</h2>
+        <p class="schedule-time">Schedule: @Model.ScheduleTime</p>
+    </div>
+    
+    <div class="attendance-actions">
+        <button id="exportBtn" class="btn-export"><i class="fas fa-file-export"></i> Export</button>
+        <button id="printBtn" class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+        <div class="filter-dropdown">
+            <button class="btn-filter"><i class="fas fa-filter"></i> Filter</button>
+            <div class="filter-content">
+                <a href="#" data-filter="all">All Students</a>
+                <a href="#" data-filter="perfect">Perfect Attendance</a>
+                <a href="#" data-filter="absent">Has Absences</a>
+                <a href="#" data-filter="late">Has Late Arrivals</a>
+                <a href="#" data-filter="unmarked">Has Unmarked</a>
+            </div>
+        </div>
+    </div>
+</div>
 
-<div style="display: flex; align-items: center; justify-content: space-between;">
-    <!-- Class Overall Attendance Bar (Aligned to the Right) -->
-    <div class="attendance-container">
-        <label style="font-size: 14px;">Class Overall Attendance</label>
-        <div class="progress-wrapper">
-            <div class="progress">
-                <div class="progress-bar" role="progressbar"
-                     style="width: @(Model.ClassAttendancePercentage)%;"
-                     aria-valuenow="@(Model.ClassAttendancePercentage)"
-                     aria-valuemin="0" aria-valuemax="100">
+<div class="attendance-summary">
+    <div class="attendance-stats">
+        <div class="stat-card">
+            <span class="stat-label">Total Students</span>
+            <span class="stat-value" id="totalStudents">@Model.AttendanceRecords.Select(a => a.Email).Distinct().Count()</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Present</span>
+            <span class="stat-value" id="presentCount">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Absent</span>
+            <span class="stat-value" id="absentCount">0</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Late</span>
+            <span class="stat-value" id="lateCount">0</span>
+        </div>
+    </div>
+
+    <div class="attendance-progress-container">
+        <div class="attendance-container">
+            <label>Class Overall Attendance</label>
+            <div class="progress-wrapper">
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar"
+                         style="width: @(Model.ClassAttendancePercentage)%;"
+                         aria-valuenow="@(Model.ClassAttendancePercentage)"
+                         aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                </div>
+                <span class="progress-percentage">@(Model.ClassAttendancePercentage.ToString("0.0"))%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bulk-actions">
+    <div class="select-all-container">
+        <input type="checkbox" id="selectAll" class="checkbox-custom">
+        <label for="selectAll" class="checkbox-custom-label">Select All</label>
+    </div>
+    <div class="bulk-dropdown">
+        <button class="btn-bulk" id="bulkActionBtn" disabled><i class="fas fa-users"></i> Bulk Action</button>
+        <div class="bulk-content">
+            <a href="#" data-action="present">Mark Present</a>
+            <a href="#" data-action="absent">Mark Absent</a>
+            <a href="#" data-action="late">Mark Late</a>
+            <a href="#" data-action="excused">Mark Excused</a>
+        </div>
+    </div>
+    <div>
+        <button class="btn-apply-date" id="applyDateBtn" disabled><i class="fas fa-calendar-check"></i> Apply To Date</button>
+        <div class="date-selector" id="dateSelector" style="display: none;">
+            <div class="date-selector-header">
+                <h4>Select Date to Apply</h4>
+                <button id="closeDateSelector"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="date-options">
+                @for (var day = 0; day < 7; day++)
+                {
+                    var currentDate = Model.WeekStart.AddDays(day);
+                    <div class="date-option" data-date="@currentDate.ToString("yyyy-MM-dd")">
+                        <input type="checkbox" id="date-@day" class="date-checkbox">
+                        <label for="date-@day">@currentDate.ToString("ddd MM/dd")</label>
+                    </div>
+                }
+            </div>
+            <button id="applyToSelectedDates" class="btn-apply">Apply</button>
+        </div>
+    </div>
+</div>
+
+<div class="attendance-table-container">
+    <table class="attendance-table">
+        <thead>
+            <tr>
+                <th class="select-column">
+                    <span class="sr-only">Select</span>
+                </th>
+                <th class="student-column">Student Email</th>
+                <th class="nav-column">
+                    <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset - 1)" class="nav-arrow">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </th>
+                @for (var day = 0; day < 7; day++)
+                {
+                    var currentDate = Model.WeekStart.AddDays(day);
+                    <th class="date-column" data-date="@currentDate.ToString("yyyy-MM-dd")">
+                        <div class="date-header">
+                            <span class="day-name">@currentDate.ToString("ddd")</span>
+                            <span class="day-date">@currentDate.ToString("MM/dd")</span>
+                        </div>
+                    </th>
+                }
+                <th class="nav-column">
+                    @{
+                        var today = DateTime.UtcNow.Date;
+                        var nextWeekStart = Model.WeekStart.AddDays(7); // Start of the next week
+                    }
+                    @if (nextWeekStart <= today)
+                    {
+                        <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset + 1)" class="nav-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    }
+                </th>
+                <th class="summary-column">Summary</th>
+                <th class="action-column">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var email in Model.AttendanceRecords.Select(a => a.Email).Distinct())
+            {
+                <tr class="student-row" data-email="@email">
+                    <td class="select-column">
+                        <input type="checkbox" class="student-checkbox checkbox-custom" id="select-@email.GetHashCode()">
+                        <label for="select-@email.GetHashCode()" class="checkbox-custom-label"></label>
+                    </td>
+                    <td class="student-column">
+                        <div class="student-info">
+                            <span class="student-email">@email</span>
+                            <i class="fas fa-info-circle student-info-icon" data-email="@email"></i>
+                        </div>
+                    </td>
+                    <td></td>
+                    @for (var day = 0; day < 7; day++)
+                    {
+                        var currentDate = Model.WeekStart.AddDays(day);
+                        var record = Model.AttendanceRecords
+                            .FirstOrDefault(a => a.Email == email && a.CurrentDate.Date == currentDate);
+                        
+                        var status = record?.AttendanceStatus ?? "Not Marked";
+                        var statusClass = status.ToLower().Replace(" ", "-");
+
+                        <td class="attendance-cell" data-date="@currentDate.ToString("yyyy-MM-dd")">
+                            <form class="attendance-form" method="post" asp-page-handler="PostAttendance">
+                                <input type="hidden" name="email" value="@email" />
+                                <input type="hidden" name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
+                                @* <select name="status" class="status-dropdown status-@statusClass" onchange="submitAttendance(this)">
+                                    <option value="Not Marked" @(status == "Not Marked" ? "selected" : "")>Not Marked</option>
+                                    <option value="Present" @(status == "Present" ? "selected" : "")>Present</option>
+                                    <option value="Absent" @(status == "Absent" ? "selected" : "")>Absent</option>
+                                    <option value="Late" @(status == "Late" ? "selected" : "")>Late</option>
+                                    <option value="Excused" @(status == "Excused" ? "selected" : "")>Excused</option>
+                                </select> *@
+                                @* <select name="status" class="status-dropdown status-@statusClass" onchange="submitAttendance(this)">
+                                    <option value="Not Marked" @(status == "Not Marked" ? "selected" : "")>Not Marked</option>
+                                    <option value="Present" @(status == "Present" ? "selected" : "")>Present</option>
+                                    <option value="Absent" @(status == "Absent" ? "selected" : "")>Absent</option>
+                                    <option value="Late" @(status == "Late" ? "selected" : "")>Late</option>
+                                    <option value="Excused" @(status == "Excused" ? "selected" : "")>Excused</option>
+                                </select> *@
+                                @* <select name="status" class="status-dropdown" onchange="submitAttendance(this)">
+                                <option value="Not Marked" selected="@(record?.AttendanceStatus == "Not Marked" ? "selected" : null)">Not Marked</option>
+                                <option value="Present" selected="@(record?.AttendanceStatus == "Present" ? "selected" : null)">Present</option>
+                                <option value="Absent" selected="@(record?.AttendanceStatus == "Absent" ? "selected" : null)">Absent</option>
+                                <option value="Late" selected="@(record?.AttendanceStatus == "Late" ? "selected" : null)">Late</option>
+                                <option value="Excused" selected="@(record?.AttendanceStatus == "Excused" ? "selected" : null)">Excused</option>
+                            </select> *@
+
+                            <select name="status" class="status-dropdown status-@statusClass" onchange="submitAttendance(this)">
+                                <option value="Not Marked" selected="@(record?.AttendanceStatus == "Not Marked" ? "selected" : null)">Not Marked</option>
+                                <option value="Present" selected="@(record?.AttendanceStatus == "Present" ? "selected" : null)">Present</option>
+                                <option value="Absent" selected="@(record?.AttendanceStatus == "Absent" ? "selected" : null)">Absent</option>
+                                <option value="Late" selected="@(record?.AttendanceStatus == "Late" ? "selected" : null)">Late</option>
+                                <option value="Excused" selected="@(record?.AttendanceStatus == "Excused" ? "selected" : null)">Excused</option>
+                            </select>
+                            </form>
+                        </td>
+                    }
+                    <td></td>
+                    <td class="summary-column">
+                        <div class="attendance-summary-bar">
+                            <div class="attendance-bar-segment present" style="width: 0%;" data-count="0"></div>
+                            <div class="attendance-bar-segment late" style="width: 0%;" data-count="0"></div>
+                            <div class="attendance-bar-segment excused" style="width: 0%;" data-count="0"></div>
+                            <div class="attendance-bar-segment absent" style="width: 0%;" data-count="0"></div>
+                        </div>
+                    </td>
+                    <td class="action-column">
+                        @{
+                            var studentScheduleID = Model.AttendanceRecords
+                                .FirstOrDefault(a => a.Email == email)?.ScheduleID ?? 0;
+                        }
+                        <a href="/AttendanceForStudent/Index?id=@studentScheduleID" class="btn-action">
+                            <i class="fas fa-user"></i> View
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Student Details Modal -->
+<div id="studentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalStudentEmail"></h3>
+            <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="student-metrics">
+                <div class="metric">
+                    <span class="metric-label">Overall Attendance</span>
+                    <span class="metric-value" id="studentAttendance">N/A</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Present</span>
+                    <span class="metric-value" id="studentPresent">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Absent</span>
+                    <span class="metric-value" id="studentAbsent">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Late</span>
+                    <span class="metric-value" id="studentLate">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Excused</span>
+                    <span class="metric-value" id="studentExcused">0</span>
                 </div>
             </div>
-            <span class="progress-percentage">@(Model.ClassAttendancePercentage.ToString("0.0"))%</span>
+            <div class="attendance-trend">
+                <h4>Attendance Trend</h4>
+                <div class="trend-chart">
+                    <div class="trend-line">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="attendance-history">
+                <h4>Recent Activity</h4>
+                <ul id="studentHistory">
+                    <!-- Will be populated by JavaScript -->
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .attendance-container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        text-align: right;
-        margin-left: 20px;
-        font-size: 14px;
+    /* Reset and base styles */
+    * {
+        box-sizing: border-box;
     }
 
-    /* Adjust layout for progress bar and percentage */
-    .progress-wrapper {
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    /* Print styles */
+    @@media print {
+        .attendance-actions, .bulk-actions, .action-column, .student-info-icon,
+        .filter-dropdown, .bulk-dropdown, .btn-apply-date, .select-column {
+            display: none !important;
+        }
+
+        .attendance-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+        }
+
+        .status-dropdown {
+            border: none !important;
+            background: none !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            padding: 5px !important;
+        }
+
+        .status-present {
+            color: #28a745 !important;
+            font-weight: bold !important;
+        }
+
+        .status-late {
+            color: #ffc107 !important;
+            font-weight: bold !important;
+        }
+
+        .status-absent {
+            color: #dc3545 !important;
+            font-weight: bold !important;
+        }
+
+        .status-excused {
+            color: #6c757d !important;
+            font-weight: bold !important;
+        }
+
+        .date-header {
+            font-weight: bold !important;
+        }
+
+        .attendance-header, .attendance-summary, .attendance-table-container {
+            margin-bottom: 20px !important;
+        }
+
+        .student-email {
+            font-weight: bold !important;
+        }
+    }
+
+    /* Header Styles */
+    .attendance-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .session-title {
+        color: goldenrod;
+        font-size: 24px;
+        margin: 0 0 8px 0;
+    }
+
+    .schedule-time {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    /* Attendance Actions */
+    .attendance-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-export, .btn-print, .btn-filter {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
         display: flex;
         align-items: center;
         gap: 5px;
+        transition: all 0.2s;
+    }
+
+    .btn-export:hover, .btn-print:hover, .btn-filter:hover {
+        background-color: #e9ecef;
+    }
+
+    /* Filter Dropdown */
+    .filter-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .filter-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        right: 0;
+        border-radius: 4px;
+    }
+
+    .filter-dropdown:hover .filter-content {
+        display: block;
+    }
+
+    .filter-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+    }
+
+    .filter-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Attendance Summary */
+    .attendance-summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .attendance-stats {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .stat-card {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 12px 15px;
+        display: flex;
+        flex-direction: column;
+        min-width: 100px;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #212529;
+    }
+
+    /* Progress Bar */
+    .attendance-container {
+        display: flex;
+        flex-direction: column;
+        text-align: right;
+        margin-left: 20px;
+    }
+
+    .progress-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .progress {
-        width: 150px; /* Smaller width */
-        height: 12px; /* Reduce height */
+        width: 250px;
+        height: 15px;
         background-color: #f3f3f3;
         border-radius: 5px;
         overflow: hidden;
@@ -63,127 +483,1104 @@
     }
 
     .progress-percentage {
-        font-size: 12px;
+        font-size: 16px;
         font-weight: bold;
         color: #333;
-        min-width: 40px;
+        min-width: 50px;
+    }
+
+    /* Bulk Actions */
+    .bulk-actions {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .select-all-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .checkbox-custom {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .checkbox-custom-label {
+        position: relative;
+        cursor: pointer;
+        padding-left: 25px;
+        font-size: 14px;
+        user-select: none;
+    }
+
+    .checkbox-custom-label:before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 18px;
+        height: 18px;
+        border: 1px solid #ddd;
+        background-color: white;
+        border-radius: 3px;
+    }
+
+    .checkbox-custom:checked + .checkbox-custom-label:before {
+        background-color: #2196F3;
+        border-color: #2196F3;
+    }
+
+    .checkbox-custom:checked + .checkbox-custom-label:after {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    .btn-bulk, .btn-apply-date {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.2s;
+    }
+
+    .btn-bulk:disabled, .btn-apply-date:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-bulk:hover:not(:disabled), .btn-apply-date:hover:not(:disabled) {
+        background-color: #e9ecef;
+    }
+
+    /* Bulk Dropdown */
+    .bulk-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .bulk-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 1;
+        border-radius: 4px;
+    }
+
+    .bulk-dropdown:hover .bulk-content {
+        display: block;
+    }
+
+    .bulk-content a {
+        color: black;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+    }
+
+    .bulk-content a:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Date Selector */
+    .date-selector {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #dee2e6;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 10;
+        border-radius: 4px;
+        padding: 15px;
+        width: 250px;
+    }
+
+    .date-selector-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .date-selector-header h4 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .date-selector-header button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+
+    .date-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .date-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-checkbox {
+        width: 18px;
+        height: 18px;
+    }
+
+    .btn-apply {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+
+    .btn-apply:hover {
+        background-color: #0069d9;
+    }
+
+    /* Table Styles */
+    .attendance-table-container {
+        overflow-x: auto;
+        margin-bottom: 30px;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .attendance-table th, .attendance-table td {
+        padding: 10px;
+        border: 1px solid #dee2e6;
+    }
+
+    .attendance-table thead {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 1;
+    }
+
+    .attendance-table thead th {
+        text-align: center;
+        font-weight: bold;
+        background-color: #f8f9fa;
+    }
+
+    .attendance-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    .attendance-table tbody tr:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Column Styles */
+    .select-column {
+        width: 40px;
+        text-align: center;
+    }
+
+    .student-column {
+        min-width: 200px;
+    }
+
+    .nav-column {
+        width: 40px;
+        text-align: center;
+    }
+
+    .date-column {
+        min-width: 100px;
+        text-align: center;
+    }
+
+    .summary-column {
+        width: 150px;
+    }
+
+    .action-column {
+        width: 100px;
+        text-align: center;
+    }
+
+    /* Date Header */
+    .date-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .day-name {
+        font-weight: bold;
+    }
+
+    .day-date {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    /* Student Info */
+    .student-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .student-email {
+        color: #8B6F4E;
+        font-weight: bold;
+    }
+
+    .student-info-icon {
+        color: #6c757d;
+        cursor: pointer;
+    }
+
+    .student-info-icon:hover {
+        color: #0069d9;
+    }
+
+    /* Nav Arrows */
+    .nav-arrow {
+        color: #6c757d;
+        text-decoration: none;
+    }
+
+    .nav-arrow:hover {
+        color: #0069d9;
+    }
+
+    /* Status Dropdowns */
+    .status-dropdown {
+        width: 100%;
+        padding: 5px;
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        font-size: 14px;
+        appearance: none;
+        background-color: white;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23212529' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 5px center;
+        background-size: 16px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .status-dropdown:focus {
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .status-present {
+        background-color: rgba(40, 167, 69, 0.2);
+        border-color: rgba(40, 167, 69, 0.5);
+    }
+
+    .status-absent {
+        background-color: rgba(220, 53, 69, 0.2);
+        border-color: rgba(220, 53, 69, 0.5);
+    }
+
+    .status-late {
+        background-color: rgba(255, 193, 7, 0.2);
+        border-color: rgba(255, 193, 7, 0.5);
+    }
+
+    .status-excused {
+        background-color: rgba(108, 117, 125, 0.2);
+        border-color: rgba(108, 117, 125, 0.5);
+    }
+
+    .status-not-marked {
+        background-color: white;
+    }
+
+    /* Attendance Summary Bar */
+    .attendance-summary-bar {
+        display: flex;
+        height: 20px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .attendance-bar-segment {
+        height: 100%;
+    }
+
+    .attendance-bar-segment.present {
+        background-color: #28a745;
+    }
+
+    .attendance-bar-segment.late {
+        background-color: #ffc107;
+    }
+
+    .attendance-bar-segment.excused {
+        background-color: #6c757d;
+    }
+
+    .attendance-bar-segment.absent {
+        background-color: #dc3545;
+    }
+
+    /* Action Button */
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        background-color: #2d4275;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-action:hover {
+        background-color: #1a2b4e;
+        color: white;
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 0;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+        padding: 15px 20px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+    }
+
+    .close-modal {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close-modal:hover {
+        color: black;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    /* Student Metrics */
+    .student-metrics {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+.metric {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 12px 15px;
+        display: flex;
+        flex-direction: column;
+        min-width: 100px;
+    }
+
+    .metric-label {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .metric-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #212529;
+    }
+
+    /* Attendance Trend */
+    .attendance-trend {
+        margin-bottom: 20px;
+    }
+
+    .attendance-trend h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .trend-chart {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 15px;
+        height: 150px;
+    }
+
+    .trend-line {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+        gap: 5px;
+    }
+
+    .trend-day {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+
+    .trend-bar {
+        width: 20px;
+        background-color: #6c757d;
+        border-radius: 2px 2px 0 0;
+    }
+
+    .trend-bar.present {
+        background-color: #28a745;
+    }
+
+    .trend-bar.absent {
+        background-color: #dc3545;
+    }
+
+    .trend-bar.late {
+        background-color: #ffc107;
+    }
+
+    .trend-bar.excused {
+        background-color: #6c757d;
+    }
+
+    .trend-date {
+        font-size: 10px;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+
+    /* Attendance History */
+    .attendance-history {
+        margin-bottom: 20px;
+    }
+
+    .attendance-history h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .attendance-history ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+    }
+
+    .attendance-history li {
+        padding: 10px 15px;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 14px;
+    }
+
+    .attendance-history li:last-child {
+        border-bottom: none;
+    }
+
+    .history-date {
+        color: #6c757d;
+        font-size: 12px;
+    }
+
+    .history-status {
+        font-weight: bold;
+    }
+
+    .history-status.present {
+        color: #28a745;
+    }
+
+    .history-status.absent {
+        color: #dc3545;
+    }
+
+    .history-status.late {
+        color: #ffc107;
+    }
+
+    .history-status.excused {
+        color: #6c757d;
     }
 </style>
 
-<table class="table" style="border-collapse: collapse; width: 100%;">
-    <thead>
-        <tr style="background-color: white; font-weight: bold; text-align: left;">
-            <th style="padding: 10px;">Student Email</th>
-
-            @{
-                var today = DateTime.UtcNow.Date;
-                var nextWeekStart = Model.WeekStart.AddDays(7); // Start of the next week
-            }
-
-            <th>
-                <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset - 1)">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-            </th>
-            @for (var day = 0; day < 7; day++)
-            {
-                var currentDate = Model.WeekStart.AddDays(day);
-                <th style="padding: 10px; min-width: 100px; text-align: center;">
-                    @currentDate.ToString("ddd") <br> @currentDate.ToString("MM/dd")
-                </th>
-            }
-            <th>
-                @if (nextWeekStart <= today)
-                {
-                    <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset + 1)">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                }
-            </th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var email in Model.AttendanceRecords.Select(a => a.Email).Distinct())
-        {
-            <tr>
-                <td style="color: #8B6F4E; font-weight: bold; padding: 10px;">@email</td>
-                <td></td> 
-                @for (var day = 0; day < 7; day++)
-                {
-                    var currentDate = Model.WeekStart.AddDays(day);
-                    var record = Model.AttendanceRecords
-                        .FirstOrDefault(a => a.Email == email && a.CurrentDate.Date == currentDate);
-
-                    <td style="text-align: center; padding: 10px;">
-                        <form class="attendance-form" method="post" asp-page-handler="PostAttendance">
-                            <input type="hidden" name="email" value="@email" />
-                            <input type="hidden" name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
-                            <select name="status" class="status-dropdown" onchange="submitAttendance(this)">
-                                <option value="Not Marked" selected="@(record?.AttendanceStatus == "Not Marked" ? "selected" : null)">Not Marked</option>
-                                <option value="Present" selected="@(record?.AttendanceStatus == "Present" ? "selected" : null)">Present</option>
-                                <option value="Absent" selected="@(record?.AttendanceStatus == "Absent" ? "selected" : null)">Absent</option>
-                                <option value="Late" selected="@(record?.AttendanceStatus == "Late" ? "selected" : null)">Late</option>
-                                <option value="Excused" selected="@(record?.AttendanceStatus == "Excused" ? "selected" : null)">Excused</option>
-                            </select>
-                        </form>
-                    </td>
-                }
-                <td></td> 
-                <td>
-                    @{
-                        var studentScheduleID = Model.AttendanceRecords
-                            .FirstOrDefault(a => a.Email == email)?.ScheduleID ?? 0;
-                    }
-                    <a href="/AttendanceForStudent/Index?id=@studentScheduleID" class="btn-action">View Individual</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 <script>
+    // Submit attendance form
     async function submitAttendance(selectElement) {
         const form = selectElement.closest("form");
         const formData = new FormData(form);
 
-        const response = await fetch(form.action, {
-            method: "POST",
-            body: formData
+        try {
+            const response = await fetch(form.action, {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                console.log(result.message);
+                // Update the dropdown styling
+                updateDropdownStyle(selectElement);
+                // Update the student's attendance summary
+                updateStudentSummary(form.querySelector("[name='email']").value);
+                // Update overall class stats
+                updateClassStats();
+            } else {
+                console.error("Failed to update attendance.");
+            }
+        } catch (error) {
+            console.error("Error updating attendance:", error);
+        }
+    }
+
+    // Update dropdown styling based on selected value
+    function updateDropdownStyle(selectElement) {
+        // Remove all status classes
+        selectElement.classList.remove(
+            "status-present", 
+            "status-absent", 
+            "status-late", 
+            "status-excused", 
+            "status-not-marked"
+        );
+
+        // Add appropriate class
+        const status = selectElement.value.toLowerCase().replace(" ", "-");
+        selectElement.classList.add(`status-${status}`);
+    }
+
+    // Calculate and update attendance summary for a student
+    function updateStudentSummary(email) {
+        const studentRow = document.querySelector(`.student-row[data-email="${email}"]`);
+        if (!studentRow) return;
+
+        // Get all attendance cells for this student
+        const attendanceCells = studentRow.querySelectorAll('.attendance-cell .status-dropdown');
+        let presentCount = 0;
+        let absentCount = 0;
+        let lateCount = 0;
+        let excusedCount = 0;
+        let totalMarked = 0;
+
+        attendanceCells.forEach(dropdown => {
+            const status = dropdown.value;
+            if (status !== "Not Marked") {
+                totalMarked++;
+                
+                if (status === "Present") presentCount++;
+                else if (status === "Absent") absentCount++;
+                else if (status === "Late") lateCount++;
+                else if (status === "Excused") excusedCount++;
+            }
         });
 
-        const result = await response.json();
-        if (result.success) {
-            console.log(result.message);
+        // Update summary bar segments
+        if (totalMarked > 0) {
+            const presentWidth = (presentCount / totalMarked) * 100;
+            const lateWidth = (lateCount / totalMarked) * 100;
+            const excusedWidth = (excusedCount / totalMarked) * 100;
+            const absentWidth = (absentCount / totalMarked) * 100;
+
+            const summaryBar = studentRow.querySelector('.attendance-summary-bar');
+            const presentSegment = summaryBar.querySelector('.present');
+            const lateSegment = summaryBar.querySelector('.late');
+            const excusedSegment = summaryBar.querySelector('.excused');
+            const absentSegment = summaryBar.querySelector('.absent');
+
+            presentSegment.style.width = `${presentWidth}%`;
+            presentSegment.setAttribute('data-count', presentCount);
+            
+            lateSegment.style.width = `${lateWidth}%`;
+            lateSegment.setAttribute('data-count', lateCount);
+            
+            excusedSegment.style.width = `${excusedWidth}%`;
+            excusedSegment.setAttribute('data-count', excusedCount);
+            
+            absentSegment.style.width = `${absentWidth}%`;
+            absentSegment.setAttribute('data-count', absentCount);
+
+            // Add tooltip to the summary bar
+            summaryBar.title = `Present: ${presentCount}, Late: ${lateCount}, Excused: ${excusedCount}, Absent: ${absentCount}`;
+        }
+    }
+
+    // Update overall class statistics
+    function updateClassStats() {
+        let presentTotal = 0;
+        let absentTotal = 0;
+        let lateTotal = 0;
+        let excusedTotal = 0;
+
+        document.querySelectorAll('.status-dropdown').forEach(dropdown => {
+            const status = dropdown.value;
+            if (status === "Present") presentTotal++;
+            else if (status === "Absent") absentTotal++;
+            else if (status === "Late") lateTotal++;
+            else if (status === "Excused") excusedTotal++;
+        });
+
+        // Update stats display
+        document.getElementById('presentCount').textContent = presentTotal;
+        document.getElementById('absentCount').textContent = absentTotal;
+        document.getElementById('lateCount').textContent = lateTotal;
+    }
+
+    // Student Modal Functions
+    function openStudentModal(email) {
+        const modal = document.getElementById('studentModal');
+        const modalTitle = document.getElementById('modalStudentEmail');
+        
+        modalTitle.textContent = email;
+        modal.style.display = 'block';
+        
+        // Populate student metrics
+        populateStudentMetrics(email);
+    }
+
+    function populateStudentMetrics(email) {
+        const studentRow = document.querySelector(`.student-row[data-email="${email}"]`);
+        if (!studentRow) return;
+
+        const attendanceCells = studentRow.querySelectorAll('.attendance-cell .status-dropdown');
+        let presentCount = 0;
+        let absentCount = 0;
+        let lateCount = 0;
+        let excusedCount = 0;
+        let totalMarked = 0;
+        
+        // Collect attendance history for trend chart
+        const history = [];
+
+        attendanceCells.forEach(dropdown => {
+            const status = dropdown.value;
+            if (status !== "Not Marked") {
+                totalMarked++;
+                
+                if (status === "Present") presentCount++;
+                else if (status === "Absent") absentCount++;
+                else if (status === "Late") lateCount++;
+                else if (status === "Excused") excusedCount++;
+                
+                // Add to history
+                const dateString = dropdown.closest('form').querySelector('[name="date"]').value;
+                history.push({
+                    date: new Date(dateString),
+                    status: status
+                });
+            }
+        });
+
+        // Sort history by date
+        history.sort((a, b) => a.date - b.date);
+
+        // Update metrics
+        document.getElementById('studentPresent').textContent = presentCount;
+        document.getElementById('studentAbsent').textContent = absentCount;
+        document.getElementById('studentLate').textContent = lateCount;
+        document.getElementById('studentExcused').textContent = excusedCount;
+
+        if (totalMarked > 0) {
+            const weightedSum = 
+                (presentCount * 1.0) + 
+                (lateCount * 0.8) + 
+                (excusedCount * 0.5) + 
+                (absentCount * 0.0);
+            
+            const attendanceScore = (weightedSum / totalMarked) * 100;
+            document.getElementById('studentAttendance').textContent = attendanceScore.toFixed(1) + '%';
         } else {
-            console.error("Failed to update attendance.");
+            document.getElementById('studentAttendance').textContent = 'N/A';
         }
-    }
-    function updateDropdownStyle(selectElement) {
-        selectElement.classList.remove("status-present", "status-late", "status-excused", "status-absent");
 
-        const selectedStatus = selectElement.value.trim();
-
-        if (selectedStatus === "Present") {
-            console.log("Applying Green Background");
-            selectElement.classList.add("status-present");
-        } else if (selectedStatus === "Late") {
-            selectElement.classList.add("status-late");
-        } else if (selectedStatus === "Excused") {
-            selectElement.classList.add("status-excused");
-        } else if (selectedStatus === "Absent") {
-            selectElement.classList.add("status-absent");
-        }
+        // Generate trend chart
+        generateTrendChart(history);
+        
+        // Generate history list
+        generateHistoryList(history);
     }
 
+    function generateTrendChart(history) {
+        const trendLine = document.querySelector('.trend-line');
+        trendLine.innerHTML = '';
 
-    // Apply the correct colors on page load for pre-selected values
+        history.forEach(entry => {
+            const trendDay = document.createElement('div');
+            trendDay.className = 'trend-day';
+            
+            const trendBar = document.createElement('div');
+            trendBar.className = `trend-bar ${entry.status.toLowerCase()}`;
+            
+            // Calculate height based on status (Present=100%, Late=80%, Excused=50%, Absent=20%)
+            let height = '20%';
+            if (entry.status === 'Present') height = '100%';
+            else if (entry.status === 'Late') height = '80%';
+            else if (entry.status === 'Excused') height = '50%';
+            else if (entry.status === 'Absent') height = '20%';
+            
+            trendBar.style.height = height;
+            
+            const trendDate = document.createElement('span');
+            trendDate.className = 'trend-date';
+            trendDate.textContent = entry.date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+            
+            trendDay.appendChild(trendBar);
+            trendDay.appendChild(trendDate);
+            trendLine.appendChild(trendDay);
+        });
+    }
+
+    function generateHistoryList(history) {
+        const historyList = document.getElementById('studentHistory');
+        historyList.innerHTML = '';
+
+        // Reverse to show most recent first
+        [...history].reverse().forEach(entry => {
+            const listItem = document.createElement('li');
+            
+            const dateSpan = document.createElement('span');
+            dateSpan.className = 'history-date';
+            dateSpan.textContent = entry.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' - ';
+            
+            const statusSpan = document.createElement('span');
+            statusSpan.className = `history-status ${entry.status.toLowerCase()}`;
+            statusSpan.textContent = entry.status;
+            
+            listItem.appendChild(dateSpan);
+            listItem.appendChild(statusSpan);
+            historyList.appendChild(listItem);
+        });
+    }
+
+    // Filter functions
+    function filterStudents(filterType) {
+        const studentRows = document.querySelectorAll('.student-row');
+        
+        studentRows.forEach(row => {
+            if (filterType === 'all') {
+                row.style.display = '';
+                return;
+            }
+            
+            const dropdowns = row.querySelectorAll('.status-dropdown');
+            let hasAbsence = false;
+            let hasLate = false;
+            let hasUnmarked = false;
+            let allPresent = true;
+            
+            dropdowns.forEach(dropdown => {
+                const status = dropdown.value;
+                if (status === 'Absent') hasAbsence = true;
+                if (status === 'Late') hasLate = true;
+                if (status === 'Not Marked') hasUnmarked = true;
+                if (status !== 'Present') allPresent = false;
+            });
+            
+            if (filterType === 'perfect' && allPresent) {
+                row.style.display = '';
+            } else if (filterType === 'absent' && hasAbsence) {
+                row.style.display = '';
+            } else if (filterType === 'late' && hasLate) {
+                row.style.display = '';
+            } else if (filterType === 'unmarked' && hasUnmarked) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Export attendance data to CSV
+    function exportToCSV() {
+        const rows = [];
+        const headers = ['Student Email'];
+        
+        // Get date headers
+        document.querySelectorAll('.date-column').forEach(col => {
+            headers.push(col.dataset.date);
+        });
+        
+        headers.push('Present Count', 'Late Count', 'Excused Count', 'Absent Count');
+        rows.push(headers);
+        
+        // Get student data
+        document.querySelectorAll('.student-row').forEach(row => {
+            const studentData = [row.dataset.email];
+            
+            // Get attendance for each date
+            row.querySelectorAll('.attendance-cell .status-dropdown').forEach(dropdown => {
+                studentData.push(dropdown.value);
+            });
+            
+            // Get counts from summary bar
+            const summaryBar = row.querySelector('.attendance-summary-bar');
+            studentData.push(
+                summaryBar.querySelector('.present').dataset.count,
+                summaryBar.querySelector('.late').dataset.count,
+                summaryBar.querySelector('.excused').dataset.count,
+                summaryBar.querySelector('.absent').dataset.count
+            );
+            
+            rows.push(studentData);
+        });
+        
+        // Convert to CSV string
+        const csvContent = rows.map(row => row.join(',')).join('\n');
+        
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'attendance_report.csv';
+        link.click();
+    }
+
+    // Bulk attendance functions
+    function getBulkSelectedStudents() {
+        const selectedCheckboxes = document.querySelectorAll('.student-checkbox:checked');
+        return Array.from(selectedCheckboxes).map(checkbox => 
+            checkbox.closest('.student-row').dataset.email
+        );
+    }
+
+    function getSelectedDates() {
+        const selectedDateCheckboxes = document.querySelectorAll('.date-checkbox:checked');
+        return Array.from(selectedDateCheckboxes).map(checkbox => 
+            checkbox.closest('.date-option').dataset.date
+        );
+    }
+
+    async function applyBulkAttendance(status, dates, emails) {
+        // Show loading indicator
+        document.body.style.cursor = 'wait';
+        
+        const promises = [];
+        
+        emails.forEach(email => {
+            dates.forEach(date => {
+                const form = document.querySelector(
+                    `.student-row[data-email="${email}"] .attendance-cell[data-date="${date}"] form`
+                );
+                
+                if (form) {
+                    const formData = new FormData(form);
+                    formData.set('status', status);
+                    
+                    promises.push(
+                        fetch(form.action, {
+                            method: "POST",
+                            body: formData
+                        })
+                    );
+                }
+            });
+        });
+        
+        try {
+            await Promise.all(promises);
+            
+            // Update dropdowns visually
+            emails.forEach(email => {
+                dates.forEach(date => {
+                    const dropdown = document.querySelector(
+                        `.student-row[data-email="${email}"] .attendance-cell[data-date="${date}"] select`
+                    );
+                    
+                    if (dropdown) {
+                        dropdown.value = status;
+                        updateDropdownStyle(dropdown);
+                    }
+                });
+                
+                // Update student summary
+                updateStudentSummary(email);
+            });
+            
+            // Update class stats
+            updateClassStats();
+            
+        } catch (error) {
+            console.error("Error applying bulk attendance:", error);
+        } finally {
+            document.body.style.cursor = 'default';
+        }
+    }
+
+    // Document ready
     document.addEventListener("DOMContentLoaded", function() {
+        // Initialize dropdown styling
         document.querySelectorAll(".status-dropdown").forEach(select => {
             updateDropdownStyle(select);
+            
             select.addEventListener("change", function() {
                 updateDropdownStyle(this);
             });
         });
+        
+        // Initialize student summary bars
+        document.querySelectorAll(".student-row").forEach(row => {
+            updateStudentSummary(row.dataset.email);
+        });
+        
+        // Update overall class stats
+        updateClassStats();
+        
+        // Student info click handler
+        document.querySelectorAll('.student-info-icon').forEach(icon => {
+            icon.addEventListener('click', () => {
+                openStudentModal(icon.dataset.email);
+            });
+        });
+        
+        // Close modal button
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            document.getElementById('studentModal').style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', event => {
+            const modal = document.getElementById('studentModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Filter dropdown handlers
+        document.querySelectorAll('.filter-content a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                filterStudents(link.dataset.filter);
+            });
+        });
+        
+        // Export button
+        document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+        
+        // Select all checkbox
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const isChecked = this.checked;
+            document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            
+            document.getElementById('bulkActionBtn').disabled = !isChecked;
+            document.getElementById('applyDateBtn').disabled = !isChecked;
+        });
+        
+        // Individual student checkboxes
+        document.querySelectorAll('.student-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const anyChecked = document.querySelector('.student-checkbox:checked') !== null;
+                document.getElementById('bulkActionBtn').disabled = !anyChecked;
+                document.getElementById('applyDateBtn').disabled = !anyChecked;
+                
+                // Update select all checkbox
+                const allChecked = document.querySelectorAll('.student-checkbox:not(:checked)').length === 0;
+                document.getElementById('selectAll').checked = allChecked;
+            });
+        });
+        
+        // Bulk attendance action handlers
+        document.querySelectorAll('.bulk-content a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const action = link.dataset.action;
+                const selectedStudents = getBulkSelectedStudents();
+                
+                // Show date selector
+                document.getElementById('dateSelector').style.display = 'block';
+                
+                // Set up apply button handler
+                document.getElementById('applyToSelectedDates').onclick = async () => {
+                    const selectedDates = getSelectedDates();
+                    if (selectedDates.length > 0) {
+                        await applyBulkAttendance(action, selectedDates, selectedStudents);
+                        document.getElementById('dateSelector').style.display = 'none';
+                    } else {
+                        alert('Please select at least one date.');
+                    }
+                };
+            });
+        });
+        
+        // Apply date button
+        document.getElementById('applyDateBtn').addEventListener('click', () => {
+            document.getElementById('dateSelector').style.display = 'block';
+        });
+        
+        // Close date selector
+        document.getElementById('closeDateSelector').addEventListener('click', () => {
+            document.getElementById('dateSelector').style.display = 'none';
+        });
     });
-
 </script>

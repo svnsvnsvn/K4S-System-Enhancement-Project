@@ -5,10 +5,13 @@
     ViewData["Title"] = "Index";
 }
 
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
 <h1>My Services</h1>
 
 <p>
-    <a href = "https://localhost:7115/StudentSchedule/AvailableService">Available Services</a>
+    <a href="https://localhost:7115/StudentSchedule/AvailableService">Available Services</a>
 </p>
 <table class="table">
     <thead>
@@ -44,43 +47,47 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Spring2024_Group2_Schedule) 
-{
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.StudentEmail)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SectionID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WeekDay)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndTime)
-            </td>
-            <td>
-                @* user doesnt need to edit the services <a asp-page="./Edit" asp-route-id="@item.ScheduleID">Edit</a> |  *@
-                <a asp-page="./Details" asp-route-id="@item.ScheduleID">Details</a> |
-                
-                <a asp-page="./Delete" asp-route-id="@item.ScheduleID">Drop Section</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.Spring2024_Group2_Schedule)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StudentEmail)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ServiceID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ServiceName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SectionID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.WeekDay)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EndTime)
+                </td>
+
+                <td class="action-buttons">
+                    <a asp-page="./Details" asp-route-id="@item.ScheduleID" class="btn details-btn" title="View Details">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                    <a asp-page="./Delete" asp-route-id="@item.ScheduleID" class="btn delete-btn" title="Drop Section"
+                        onclick="return confirm('Are you sure you want to drop this section?');">
+                        <i class="fas fa-trash-alt"></i>
+                    </a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
