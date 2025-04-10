@@ -2,14 +2,6 @@
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
-@{
-    bool isUserApproved = false;
-    if (ViewData["IsUserApproved"] != null)
-    {
-        isUserApproved = (bool)ViewData["IsUserApproved"];
-    }
-}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,11 +44,7 @@
                                         }
                                         else
                                         {
-                                            @* Only show My Services if user is approved *@
-                                            @if (isUserApproved)
-                                            {
                                                 <b> <a class="nav-link" style="color:#c39a4b" href="/MySchedules/Index">My Services</a> </b>
-                                            }
                                         }
                                     </li>
                                     <li class="nav-item">

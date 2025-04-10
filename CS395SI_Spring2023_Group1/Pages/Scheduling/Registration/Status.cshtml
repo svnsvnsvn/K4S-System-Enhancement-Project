@@ -1,0 +1,71 @@
+@page
+@model CS395SI_Spring2023_Group1.Pages.Registration.StatusModel
+@{
+    ViewData["Title"] = "Application Status";
+}
+
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    @Model.ErrorMessage
+                </div>
+            }
+            
+            @if (Model.Profile != null)
+            {
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="mb-0">Application Status</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert @(Model.Profile.ApplicationStatus == "Approved" ? "alert-success" : Model.Profile.ApplicationStatus == "Rejected" ? "alert-danger" : "alert-info")">
+                            <h4>Your application status: <strong>@Model.Profile.ApplicationStatus</strong></h4>
+                            
+                            @if (Model.Profile.ApplicationStatus == "Pending")
+                            {
+                                <p>Your application is currently under review. You will be notified once a decision has been made.</p>
+                            }
+                            else if (Model.Profile.ApplicationStatus == "Approved")
+                            {
+                                <p>Congratulations! Your application has been approved. You can now register for programs.</p>
+                            }
+                            else if (Model.Profile.ApplicationStatus == "Rejected")
+                            {
+                                <p>Unfortunately, your application was not approved at this time. Please contact us for more information.</p>
+                            }
+                        </div>
+                        
+                        <h4 class="mt-4">Application Details</h4>
+                        <hr/>
+                        
+                        <div class="row mb-2">
+                            <div class="col-md-4 fw-bold">Name:</div>
+                            <div class="col-md-8">@Model.Profile.Name</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4 fw-bold">Email:</div>
+                            <div class="col-md-8">@Model.Profile.Email</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4 fw-bold">Phone:</div>
+                            <div class="col-md-8">@Model.Profile.PhoneNum</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="/" class="btn btn-primary">Return to Home</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    No profile information was found. <a asp-page="./Create">Click here</a> to create your application.
+                </div>
+            }
+        </div>
+    </div>
+</div>

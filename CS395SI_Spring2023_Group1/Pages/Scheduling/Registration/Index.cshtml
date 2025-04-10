@@ -14,7 +14,7 @@
 
 <div>
     <div class="subOptions">
-        <p><a asp-page="./Create">Create New User</a></p>
+        @* <p><a asp-page="./Create">Create New User</a></p> should admin be able to create new users? *@
 
         <form method="get" onsubmit="return validateSearchQuery()">
             <div class="search-container">
@@ -86,9 +86,9 @@
                             </td>
 
                             <td class="action-buttons">
-                                <a asp-page="./Edit" asp-route-id="@item.Email" class="btn edit-btn" title="Edit">
+                                @* <a asp-page="./Edit" asp-route-id="@item.Email" class="btn edit-btn" title="Edit">
                                     <i class="fas fa-pencil-alt"></i>
-                                </a>
+                                </a> admin should not be editting students *@
                                 <a asp-page="./Details" asp-route-id="@item.Email" class="btn details-btn" title="View Details">
                                     <i class="fas fa-info-circle"></i>
                                 </a>
