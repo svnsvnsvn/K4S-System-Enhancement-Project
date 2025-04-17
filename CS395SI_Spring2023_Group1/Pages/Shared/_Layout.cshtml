@@ -23,7 +23,7 @@
                             aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    @* <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                         <div class="navbar-nav ms-auto">
                            <ul class="navbar-nav flex-grow-1">
                                  <li class="nav-item">
@@ -35,6 +35,22 @@
                                         <b> <a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Index">Registered Users</a></b>
                                      </li>
                                  }
+
+                                 @if (User.IsInRole("Instructor"))
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="instructorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Instructor
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="instructorDropdown">
+                                            <li><a class="dropdown-item" asp-area="" asp-page="/InstructorDashboard/Index">Dashboard</a></li>
+                                            <li><a class="dropdown-item" asp-area="" asp-page="/AttendanceForStudent/Index">Manage Attendance</a></li>
+                                            <li><a class="dropdown-item" asp-area="" asp-page="/Services/Index">Services</a></li>
+                                            <li><a class="dropdown-item" asp-area="" asp-page="/SectionForStudent/Index">Sections</a></li>
+                                        </ul>
+                                    </li>
+                                }
+                                 
                                  @if (User.Identity.IsAuthenticated)
                                 {
                                     <li class="nav-item">
@@ -69,7 +85,74 @@
                                 }
                             </ul>
                         </div>
-                    </div>
+                    </div> *@
+
+<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+    <div class="navbar-nav ms-auto">
+        <ul class="navbar-nav flex-grow-1">
+            <li class="nav-item">
+                <b><a class="nav-link text-yellow" style="color:#c39a4b" asp-area="" asp-page="/Index">Home</a></b>
+            </li>
+            
+            <!-- Admin-specific navigation -->
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" style="color:#c39a4b" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Admin
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                        <li><a class="dropdown-item" href="/Admin/UserRoles">Manage User Roles</a></li>
+                        <li><a class="dropdown-item" href="/ServicesForAdmin/Index">Manage Services</a></li>
+                        @* <li><a class="dropdown-item" href="/Scheduling/Registration/Index">View Applications</a></li> *@
+                    </ul>
+                </li>
+            }
+
+            <!-- Instructor-specific navigation -->
+            @if (User.IsInRole("Instructor"))
+            {
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" style="color:#c39a4b" href="#" id="instructorDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Instructor
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="instructorDropdown">
+                        <li><a class="dropdown-item" asp-area="" asp-page="/InstructorDashboard/Index">Dashboard</a></li>
+                        <li><a class="dropdown-item" asp-area="" asp-page="/Scheduling/Registration/Index">View Students</a></li>
+                        @* <li><a class="dropdown-item" asp-area="" asp-page="/Sections/Index">Manage Sections</a></li> *@
+                        <li><a class="dropdown-item" asp-area="" asp-page="/ServicesForAdmin/Index">View Services</a></li>
+                    </ul>
+                </li>
+            }
+            
+            <!-- Student-specific navigation (regular authenticated users) -->
+            @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin") && !User.IsInRole("Instructor"))
+            {
+                <li class="nav-item">
+                    <b><a class="nav-link" style="color:#c39a4b" href="/MySchedules/Index">My Services</a></b>
+                </li>
+                <li class="nav-item">
+                    <b><a class="nav-link" style="color:#c39a4b" href="/Identity/Pages/Account/Manage/Index">View Account</a></b>
+                </li>
+                <li class="nav-item">
+                    <b><a class="nav-link" style="color:#c39a4b" href="https://localhost:7115/StudentSchedule/AvailableService">Register for Services</a></b>
+                </li>
+                <li class="nav-item">
+                    <b><a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Create">Student Application</a></b>
+                </li>
+            }
+            
+            <!-- Logout for all authenticated users -->
+            @if (User.Identity.IsAuthenticated)
+            {
+                <li class="nav-item">
+                    <b><a class="nav-link" style="color:#c39a4b" href="/Identity/Pages/Account/Logout">Log Out</a></b>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
                 </div>
             </nav>
     </header>

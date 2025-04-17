@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Instructor")]
     public class IndexModel : PageModel
     {
         private readonly CS395SI_Spring2023_Group1.Data.CS395SI_Spring2023_Group1Context _context;

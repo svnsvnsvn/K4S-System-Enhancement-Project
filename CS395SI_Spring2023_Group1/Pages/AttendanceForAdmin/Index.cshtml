@@ -349,6 +349,13 @@
         margin-bottom: 20px;
     }
 
+    .attendance-header,
+    .attendance-actions {
+        position: relative;
+        z-index: 9999;
+    }
+
+
     .session-title {
         color: goldenrod;
         font-size: 24px;
@@ -393,13 +400,16 @@
     .filter-content {
         display: none;
         position: absolute;
+        z-index: 10000;
+        right: 0;
+        top: 100%;
         background-color: #f9f9f9;
         min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
-        right: 0;
+        box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
         border-radius: 4px;
     }
+
+
 
     .filter-dropdown:hover .filter-content {
         display: block;
@@ -1075,7 +1085,6 @@
 </style>
 
 <script>
-    // Submit attendance form
     async function submitAttendance(selectElement) {
         const form = selectElement.closest("form");
         const formData = new FormData(form);
@@ -1089,11 +1098,8 @@
             const result = await response.json();
             if (result.success) {
                 console.log(result.message);
-                // Update the dropdown styling
                 updateDropdownStyle(selectElement);
-                // Update the student's attendance summary
                 updateStudentSummary(form.querySelector("[name='email']").value);
-                // Update overall class stats
                 updateClassStats();
             } else {
                 console.error("Failed to update attendance.");
@@ -1105,7 +1111,6 @@
 
     // Update dropdown styling based on selected value
     function updateDropdownStyle(selectElement) {
-        // Remove all status classes
         selectElement.classList.remove(
             "status-present", 
             "status-absent", 
@@ -1114,7 +1119,6 @@
             "status-not-marked"
         );
 
-        // Add appropriate class
         const status = selectElement.value.toLowerCase().replace(" ", "-");
         selectElement.classList.add(`status-${status}`);
     }
@@ -1124,7 +1128,6 @@
         const studentRow = document.querySelector(`.student-row[data-email="${email}"]`);
         if (!studentRow) return;
 
-        // Get all attendance cells for this student
         const attendanceCells = studentRow.querySelectorAll('.attendance-cell .status-dropdown');
         let presentCount = 0;
         let absentCount = 0;
@@ -1144,7 +1147,6 @@
             }
         });
 
-        // Update summary bar segments
         if (totalMarked > 0) {
             const presentWidth = (presentCount / totalMarked) * 100;
             const lateWidth = (lateCount / totalMarked) * 100;
@@ -1169,12 +1171,10 @@
             absentSegment.style.width = `${absentWidth}%`;
             absentSegment.setAttribute('data-count', absentCount);
 
-            // Add tooltip to the summary bar
             summaryBar.title = `Present: ${presentCount}, Late: ${lateCount}, Excused: ${excusedCount}, Absent: ${absentCount}`;
         }
     }
 
-    // Update overall class statistics
     function updateClassStats() {
         let presentTotal = 0;
         let absentTotal = 0;
@@ -1189,13 +1189,11 @@
             else if (status === "Excused") excusedTotal++;
         });
 
-        // Update stats display
         document.getElementById('presentCount').textContent = presentTotal;
         document.getElementById('absentCount').textContent = absentTotal;
         document.getElementById('lateCount').textContent = lateTotal;
     }
 
-    // Student Modal Functions
     function openStudentModal(email) {
         const modal = document.getElementById('studentModal');
         const modalTitle = document.getElementById('modalStudentEmail');
@@ -1203,7 +1201,6 @@
         modalTitle.textContent = email;
         modal.style.display = 'block';
         
-        // Populate student metrics
         populateStudentMetrics(email);
     }
 
@@ -1218,7 +1215,6 @@
         let excusedCount = 0;
         let totalMarked = 0;
         
-        // Collect attendance history for trend chart
         const history = [];
 
         attendanceCells.forEach(dropdown => {
@@ -1240,7 +1236,6 @@
             }
         });
 
-        // Sort history by date
         history.sort((a, b) => a.date - b.date);
 
         // Update metrics
@@ -1262,10 +1257,8 @@
             document.getElementById('studentAttendance').textContent = 'N/A';
         }
 
-        // Generate trend chart
         generateTrendChart(history);
         
-        // Generate history list
         generateHistoryList(history);
     }
 
@@ -1280,7 +1273,6 @@
             const trendBar = document.createElement('div');
             trendBar.className = `trend-bar ${entry.status.toLowerCase()}`;
             
-            // Calculate height based on status (Present=100%, Late=80%, Excused=50%, Absent=20%)
             let height = '20%';
             if (entry.status === 'Present') height = '100%';
             else if (entry.status === 'Late') height = '80%';
@@ -1303,7 +1295,6 @@
         const historyList = document.getElementById('studentHistory');
         historyList.innerHTML = '';
 
-        // Reverse to show most recent first
         [...history].reverse().forEach(entry => {
             const listItem = document.createElement('li');
             
@@ -1321,7 +1312,6 @@
         });
     }
 
-    // Filter functions
     function filterStudents(filterType) {
         const studentRows = document.querySelectorAll('.student-row');
         
@@ -1359,12 +1349,10 @@
         });
     }
 
-    // Export attendance data to CSV
     function exportToCSV() {
         const rows = [];
         const headers = ['Student Email'];
         
-        // Get date headers
         document.querySelectorAll('.date-column').forEach(col => {
             headers.push(col.dataset.date);
         });
@@ -1372,16 +1360,13 @@
         headers.push('Present Count', 'Late Count', 'Excused Count', 'Absent Count');
         rows.push(headers);
         
-        // Get student data
         document.querySelectorAll('.student-row').forEach(row => {
             const studentData = [row.dataset.email];
             
-            // Get attendance for each date
             row.querySelectorAll('.attendance-cell .status-dropdown').forEach(dropdown => {
                 studentData.push(dropdown.value);
             });
             
-            // Get counts from summary bar
             const summaryBar = row.querySelector('.attendance-summary-bar');
             studentData.push(
                 summaryBar.querySelector('.present').dataset.count,
@@ -1393,10 +1378,8 @@
             rows.push(studentData);
         });
         
-        // Convert to CSV string
         const csvContent = rows.map(row => row.join(',')).join('\n');
         
-        // Create download link
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -1405,7 +1388,6 @@
         link.click();
     }
 
-    // Bulk attendance functions
     function getBulkSelectedStudents() {
         const selectedCheckboxes = document.querySelectorAll('.student-checkbox:checked');
         return Array.from(selectedCheckboxes).map(checkbox => 
@@ -1421,7 +1403,6 @@
     }
 
     async function applyBulkAttendance(status, dates, emails) {
-        // Show loading indicator
         document.body.style.cursor = 'wait';
         
         const promises = [];
@@ -1449,7 +1430,6 @@
         try {
             await Promise.all(promises);
             
-            // Update dropdowns visually
             emails.forEach(email => {
                 dates.forEach(date => {
                     const dropdown = document.querySelector(
@@ -1462,11 +1442,9 @@
                     }
                 });
                 
-                // Update student summary
                 updateStudentSummary(email);
             });
             
-            // Update class stats
             updateClassStats();
             
         } catch (error) {
@@ -1476,9 +1454,7 @@
         }
     }
 
-    // Document ready
     document.addEventListener("DOMContentLoaded", function() {
-        // Initialize dropdown styling
         document.querySelectorAll(".status-dropdown").forEach(select => {
             updateDropdownStyle(select);
             
@@ -1487,27 +1463,22 @@
             });
         });
         
-        // Initialize student summary bars
         document.querySelectorAll(".student-row").forEach(row => {
             updateStudentSummary(row.dataset.email);
         });
         
-        // Update overall class stats
         updateClassStats();
         
-        // Student info click handler
         document.querySelectorAll('.student-info-icon').forEach(icon => {
             icon.addEventListener('click', () => {
                 openStudentModal(icon.dataset.email);
             });
         });
         
-        // Close modal button
         document.querySelector('.close-modal').addEventListener('click', () => {
             document.getElementById('studentModal').style.display = 'none';
         });
         
-        // Close modal when clicking outside
         window.addEventListener('click', event => {
             const modal = document.getElementById('studentModal');
             if (event.target === modal) {
@@ -1515,7 +1486,6 @@
             }
         });
         
-        // Filter dropdown handlers
         document.querySelectorAll('.filter-content a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -1523,10 +1493,8 @@
             });
         });
         
-        // Export button
         document.getElementById('exportBtn').addEventListener('click', exportToCSV);
         
-        // Select all checkbox
         document.getElementById('selectAll').addEventListener('change', function() {
             const isChecked = this.checked;
             document.querySelectorAll('.student-checkbox').forEach(checkbox => {
@@ -1537,30 +1505,25 @@
             document.getElementById('applyDateBtn').disabled = !isChecked;
         });
         
-        // Individual student checkboxes
         document.querySelectorAll('.student-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', () => {
                 const anyChecked = document.querySelector('.student-checkbox:checked') !== null;
                 document.getElementById('bulkActionBtn').disabled = !anyChecked;
                 document.getElementById('applyDateBtn').disabled = !anyChecked;
                 
-                // Update select all checkbox
                 const allChecked = document.querySelectorAll('.student-checkbox:not(:checked)').length === 0;
                 document.getElementById('selectAll').checked = allChecked;
             });
         });
         
-        // Bulk attendance action handlers
         document.querySelectorAll('.bulk-content a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const action = link.dataset.action;
                 const selectedStudents = getBulkSelectedStudents();
                 
-                // Show date selector
                 document.getElementById('dateSelector').style.display = 'block';
                 
-                // Set up apply button handler
                 document.getElementById('applyToSelectedDates').onclick = async () => {
                     const selectedDates = getSelectedDates();
                     if (selectedDates.length > 0) {
@@ -1573,12 +1536,10 @@
             });
         });
         
-        // Apply date button
         document.getElementById('applyDateBtn').addEventListener('click', () => {
             document.getElementById('dateSelector').style.display = 'block';
         });
         
-        // Close date selector
         document.getElementById('closeDateSelector').addEventListener('click', () => {
             document.getElementById('dateSelector').style.display = 'none';
         });

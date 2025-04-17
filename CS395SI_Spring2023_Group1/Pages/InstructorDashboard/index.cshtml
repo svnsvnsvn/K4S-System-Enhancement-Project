@@ -1,0 +1,78 @@
+@page
+@model CS395SI_Spring2023_Group1.Pages.InstructorDashboard.IndexModel
+@{
+    ViewData["Title"] = "Instructor Dashboard";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Instructor Dashboard</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Students</h5>
+                    <p class="display-4">@Model.StudentsCount</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Applications</h5>
+                    <p class="display-4">@Model.PendingApplicationsCount</p>
+                    <a asp-page="/Scheduling/Registration/Index" class="btn btn-outline-light">Review Applications</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Approved Students</h5>
+                    <p class="display-4">@Model.ApprovedApplicationsCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @* <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a asp-page="/AttendanceForAdmin/Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clipboard-check me-2"></i> Manage Attendance
+                        </a>
+                        <a asp-page="/Scheduling/Registration/Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user-check me-2"></i> Review Applications
+                        </a>
+                        <a asp-page="/ServicesForAdmin/Index" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt me-2"></i> Manage Sections
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div> *@
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Instructor Resources</h5>
+                </div>
+                <div class="card-body">
+                    <p>Welcome to the Instructor Dashboard.</p>
+                    @* <ul>
+                        <li>Review and approve student applications</li>
+                        <li>Mark attendance for classes</li>
+                        <li>Manage class sections</li>
+                        <li>View student information</li>
+                    </ul>
+                    <p>Use the quick action links to navigate to the most common tasks.</p> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

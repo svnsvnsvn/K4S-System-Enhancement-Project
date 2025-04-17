@@ -1,0 +1,52 @@
+@page
+@model CS395SI_Spring2023_Group1.Pages.Admin.UserRolesModel
+@{
+    ViewData["Title"] = "Manage User Roles";
+}
+
+<div class="container mt-4">
+    <h1>Manage User Roles</h1>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Assign Role to User</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Input.UserId" class="form-label">User</label>
+                            <select asp-for="Input.UserId" asp-items="Model.Users" class="form-select">
+                                <option value="">-- Select User --</option>
+                            </select>
+                            <span asp-validation-for="Input.UserId" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Input.RoleName" class="form-label">Role</label>
+                            <select asp-for="Input.RoleName" asp-items="Model.Roles" class="form-select">
+                                <option value="">-- Select Role --</option>
+                            </select>
+                            <span asp-validation-for="Input.RoleName" class="text-danger"></span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Assign Role</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
