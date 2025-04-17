@@ -87,7 +87,7 @@
                         </div>
                     </div> *@
 
-<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="collapse navbar-collapse" id="navbarNavAltMarkup"></div>
     <div class="navbar-nav ms-auto">
         <ul class="navbar-nav flex-grow-1">
             <li class="nav-item">
@@ -104,7 +104,6 @@
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" href="/Admin/UserRoles">Manage User Roles</a></li>
                         <li><a class="dropdown-item" href="/ServicesForAdmin/Index">Manage Services</a></li>
-                        @* <li><a class="dropdown-item" href="/Scheduling/Registration/Index">View Applications</a></li> *@
                     </ul>
                 </li>
             }
@@ -119,7 +118,6 @@
                     <ul class="dropdown-menu" aria-labelledby="instructorDropdown">
                         <li><a class="dropdown-item" asp-area="" asp-page="/InstructorDashboard/Index">Dashboard</a></li>
                         <li><a class="dropdown-item" asp-area="" asp-page="/Scheduling/Registration/Index">View Students</a></li>
-                        @* <li><a class="dropdown-item" asp-area="" asp-page="/Sections/Index">Manage Sections</a></li> *@
                         <li><a class="dropdown-item" asp-area="" asp-page="/ServicesForAdmin/Index">View Services</a></li>
                     </ul>
                 </li>
@@ -128,18 +126,51 @@
             <!-- Student-specific navigation (regular authenticated users) -->
             @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin") && !User.IsInRole("Instructor"))
             {
-                <li class="nav-item">
-                    <b><a class="nav-link" style="color:#c39a4b" href="/MySchedules/Index">My Services</a></b>
-                </li>
-                <li class="nav-item">
-                    <b><a class="nav-link" style="color:#c39a4b" href="/Identity/Pages/Account/Manage/Index">View Account</a></b>
-                </li>
-                <li class="nav-item">
-                    <b><a class="nav-link" style="color:#c39a4b" href="https://localhost:7115/StudentSchedule/AvailableService">Register for Services</a></b>
-                </li>
-                <li class="nav-item">
-                    <b><a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Create">Student Application</a></b>
-                </li>
+                @inject CS395SI_Spring2023_Group1.Data.CS395SI_Spring2023_Group1Context _context
+                @inject Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser> _userManager
+                
+                var user = await _userManager.GetUserAsync(User);
+                var hasProfile = false;
+                var applicationStatus = string.Empty;
+                
+                if (user != null)
+                {
+                    var profile = _context.Spring2023_Group1_Profile_Sys
+                        .FirstOrDefault(p => p.Email == user.Email);
+                    
+                    if (profile != null)
+                    {
+                        hasProfile = true;
+                        applicationStatus = profile.ApplicationStatus;
+                    }
+                }
+                
+                if (hasProfile)
+                {
+                    <li class="nav-item">
+                        <b><a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Status">Application Status</a></b>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <b><a class="nav-link" style="color:#c39a4b" href="/Identity/Pages/Account/Manage/Index">View Account</a></b>
+                    </li>
+                    
+                    if (applicationStatus == "Approved")
+                    {
+                        <li class="nav-item">
+                            <b><a class="nav-link" style="color:#c39a4b" href="/MySchedules/Index">My Services</a></b>
+                        </li>
+                        <li class="nav-item">
+                            <b><a class="nav-link" style="color:#c39a4b" href="https://localhost:7115/StudentSchedule/AvailableService">Register for Services</a></b>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <b><a class="nav-link" style="color:#c39a4b" href="/Scheduling/Registration/Create">Student Application</a></b>
+                    </li>
+                }
             }
             
             <!-- Logout for all authenticated users -->
