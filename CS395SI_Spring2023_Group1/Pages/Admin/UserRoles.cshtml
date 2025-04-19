@@ -5,43 +5,114 @@
 }
 
 <div class="container mt-4">
-    <h1>Manage User Roles</h1>
-    <hr />
-
+    <h1 class="mb-3" style="color:#c39a4b">Manage User Roles</h1>
+    
+    <p>Assign roles to users to control their access level and permissions within the system.</p>
+    
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
-
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Assign Role to User</h5>
+    
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    
+    <!-- Enhanced User Search -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header" style="background-color:#c39a4b; color:white">
+            <h5 class="mb-0">Find Users</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search by Name or Email</label>
+                    <input type="text" name="searchTerm" class="form-control" placeholder="Enter name or email" value="@Model.SearchTerm">
                 </div>
-                <div class="card-body">
-                    <form method="post">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        
-                        <div class="mb-3">
-                            <label asp-for="Input.UserId" class="form-label">User</label>
-                            <select asp-for="Input.UserId" asp-items="Model.Users" class="form-select">
-                                <option value="">-- Select User --</option>
-                            </select>
-                            <span asp-validation-for="Input.UserId" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label asp-for="Input.RoleName" class="form-label">Role</label>
-                            <select asp-for="Input.RoleName" asp-items="Model.Roles" class="form-select">
-                                <option value="">-- Select Role --</option>
-                            </select>
-                            <span asp-validation-for="Input.RoleName" class="text-danger"></span>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary">Assign Role</button>
-                    </form>
+                <div class="col-md-4">
+                    <label class="form-label">Filter by Role</label>
+                    <select name="roleFilter" class="form-select">
+                        <option value="">All Roles</option>
+                        @foreach (var role in Model.Roles)
+                        {
+                            <option value="@role.Text" selected="@(Model.RoleFilter == role.Text)">@role.Text</option>
+                        }
+                    </select>
                 </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn text-white w-100" style="background-color:#c39a4b">
+                        <i class="fas fa-search me-2"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="card-header" style="background-color:#c39a4b; color:white">
+            <h5 class="mb-0">User Management</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Current Role</th>
+                            <th>Change Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model.UserRolesList)
+                        {
+                            <tr>
+                                <td>@user.Name</td>
+                                <td>@user.Email</td>
+                                <td>@user.CurrentRole</td>
+                                <td>
+                                    <form method="post" asp-page-handler="ChangeRole" class="d-flex">
+                                        <input type="hidden" name="userId" value="@user.UserId" />
+                                        <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                        <input type="hidden" name="roleFilter" value="@Model.RoleFilter" />
+                                        <select name="roleName" class="form-select form-select-sm me-2">
+                                            <option value="">-- Select Role --</option>
+                                            @foreach (var role in Model.Roles)
+                                            {
+                                                <option value="@role.Text">@role.Text</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-sm" style="background-color:#c39a4b; color:white">Update</button>
+                                    </form>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <form method="post" asp-page-handler="ResetPassword" onsubmit="return confirm('Are you sure you want to reset this user\'s password?');">
+                                            <input type="hidden" name="userId" value="@user.UserId" />
+                                            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                            <input type="hidden" name="roleFilter" value="@Model.RoleFilter" />
+                                            <button type="submit" class="btn btn-sm btn-warning me-2">Reset Password</button>
+                                        </form>
+                                        <form method="post" asp-page-handler="DeleteUser" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                            <input type="hidden" name="userId" value="@user.UserId" />
+                                            <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
+                                            <input type="hidden" name="roleFilter" value="@Model.RoleFilter" />
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -49,4 +120,34 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTables with more features
+            $('#usersTable').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+                "order": [[0, "asc"]],
+                "responsive": true,
+                "dom": '<"top"lf>rt<"bottom"ip>',
+                "language": {
+                    "search": "Quick filter:",
+                    "lengthMenu": "Show _MENU_ users per page",
+                    "info": "Showing _START_ to _END_ of _TOTAL_ users"
+                },
+                "columnDefs": [
+                    { "width": "20%", "targets": 0 },
+                    { "width": "20%", "targets": 1 },
+                    { "width": "15%", "targets": 2 },
+                    { "width": "25%", "targets": 3 },
+                    { "width": "20%", "targets": 4 }
+                ]
+            });
+
+            // Instant form submission when role filter changes
+            $('select[name="roleFilter"]').on('change', function() {
+                $(this).closest('form').submit();
+            });
+        });
+    </script>
 }

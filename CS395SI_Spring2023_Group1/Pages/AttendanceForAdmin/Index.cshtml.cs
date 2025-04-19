@@ -35,6 +35,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
 
         public double ClassAttendancePercentage { get; set; } = 0;
 
+
         public async Task OnGetAsync(int sectionID)
         {
             Console.WriteLine($"Section ID received: {sectionID}");
@@ -74,13 +75,22 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
                 .Where(a => a.SectionID == sectionID && a.CurrentDate >= WeekStart && a.CurrentDate < WeekStart.AddDays(7))
                 .ToListAsync();
 
-                var enrolledStudents = await _context.Spring2024_Group2_Schedule
-                .Where(s => s.SectionID == sectionID)
-                .Select(s => new { s.StudentEmail, s.SectionID, s.ServiceID, s.ScheduleID })
-                .ToListAsync();
+                var enrolledStudents = await (
+                    from s in _context.Spring2024_Group2_Schedule
+                    join p in _context.Spring2023_Group1_Profile_Sys
+                    on s.StudentEmail equals p.Email
+                    where s.SectionID == sectionID
+                    select new
+                    {
+                        s.StudentEmail,
+                        s.SectionID,
+                        s.ServiceID,
+                        s.ScheduleID,
+                        p.Name
+                    }).ToListAsync();
 
+                ViewData["EmailToName"] = enrolledStudents.ToDictionary(e => e.StudentEmail, e => e.Name);
 
-                Console.WriteLine($"Found {enrolledStudents.Count} enrolled students.");
 
 
                 var newAttendanceRecords = new List<Spring2025_Group3_Attendance>();

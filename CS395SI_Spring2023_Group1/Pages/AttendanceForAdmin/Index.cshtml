@@ -2,6 +2,11 @@
 @model CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin.IndexModel
 
 @{
+    var emailToName = ViewData["EmailToName"] as Dictionary<string, string>;
+}
+
+
+@{
     ViewData["Title"] = Model.SessionTitle;
 }
 
@@ -112,7 +117,7 @@
                 <th class="select-column">
                     <span class="sr-only">Select</span>
                 </th>
-                <th class="student-column">Student Email</th>
+                <th class="student-column">Student Name</th>
                 <th class="nav-column">
                     <a href="?sectionID=@Model.SectionID&weekOffset=@(Model.WeekOffset - 1)" class="nav-arrow">
                         <i class="fas fa-arrow-left"></i>
@@ -154,7 +159,10 @@
                     </td>
                     <td class="student-column">
                         <div class="student-info">
-                            <span class="student-email">@email</span>
+                            <span class="student-email">
+                                @(emailToName != null && emailToName.ContainsKey(email) ? emailToName[email] : email)
+                            </span>
+
                             <i class="fas fa-info-circle student-info-icon" data-email="@email"></i>
                         </div>
                     </td>
@@ -580,37 +588,41 @@
         background-color: #e9ecef;
     }
 
-    /* Bulk Dropdown */
-    .bulk-dropdown {
-        position: relative;
-        display: inline-block;
-    }
+     /* Bulk Dropdown */
+ .bulk-dropdown {
+     position: relative;
+     display: inline-block;
+     z-index: 999;
+ }
 
-    .bulk-content {
-        display: none;
-        position: absolute;
-        background-color: #f9f9f9;
-        min-width: 160px;
-        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-        z-index: 1;
-        border-radius: 4px;
-    }
+ .bulk-content {
+     display: none;
+     position: absolute;
+     top: 100%; 
+     left: 0;
+     background-color: #f9f9f9;
+     min-width: 160px;
+     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+     z-index: 1000;
+     border-radius: 4px;
+ }
 
-    .bulk-dropdown:hover .bulk-content {
-        display: block;
-    }
+ .bulk-dropdown:hover .bulk-content {
+     display: block;
+ }
 
-    .bulk-content a {
-        color: black;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        font-size: 14px;
-    }
+ .bulk-content a {
+     color: black;
+     padding: 12px 16px;
+     text-decoration: none;
+     display: block;
+     font-size: 14px;
+ }
 
-    .bulk-content a:hover {
-        background-color: #f1f1f1;
-    }
+ .bulk-content a:hover {
+     background-color: #f1f1f1;
+ }
+
 
     /* Date Selector */
     .date-selector {
@@ -1351,7 +1363,7 @@
 
     function exportToCSV() {
         const rows = [];
-        const headers = ['Student Email'];
+        const headers = ['Student Name'];
         
         document.querySelectorAll('.date-column').forEach(col => {
             headers.push(col.dataset.date);

@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
 {
-    [Authorize]
+    [Authorize(Roles = "Instructor")]
     public class IndexModel : PageModel
     {
         private readonly CS395SI_Spring2023_Group1Context _context;
