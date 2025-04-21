@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
 {
-    [Authorize(Roles = "Instructor")]
+    [Authorize(Roles = "User,Instructor")]
     public class IndexModel : PageModel
     {
         private readonly CS395SI_Spring2023_Group1Context _context;
@@ -49,7 +49,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
             ScheduleID = id;
             
             // Check if user is an admin
-            IsAdmin = User.IsInRole("Admin");
+            IsAdmin = User.IsInRole("Instructor");
             
             // Get the current user's email or use the student's email provided in the URL
             var currentUserEmail = User.FindFirstValue(ClaimTypes.Name);

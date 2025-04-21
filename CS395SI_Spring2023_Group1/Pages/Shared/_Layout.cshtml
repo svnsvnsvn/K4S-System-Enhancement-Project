@@ -103,7 +103,7 @@
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="adminDropdown">
                         <li><a class="dropdown-item" asp-area="" asp-page="/Admin/UserRoles">Manage User Roles</a></li>
-                        <li><a class="dropdown-item" asp-area="" asp-page="/ServicesForAdmin/Index">Manage Services</a></li>
+                        @* <li><a class="dropdown-item" asp-area="" asp-page="/ServicesForAdmin/Index">Manage Services</a></li> *@
                     </ul>
                 </li>
             }
@@ -116,8 +116,8 @@
                         Instructor
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="instructorDropdown">
-                        <li><a class="dropdown-item" asp-area="" asp-page="/InstructorDashboard/Index">Dashboard</a></li>
-                        <li><a class="dropdown-item" asp-area="" asp-page="/Scheduling/Registration/Index">View Students</a></li>
+                        @* <li><a class="dropdown-item" asp-area="" asp-page="/AttendanceForStudent/Index">Manage Attendance</a></li> *@
+                        <li><a class="dropdown-item" asp-area="" asp-page="/Scheduling/Registration/Index">View Enrolled Students</a></li>
                         <li><a class="dropdown-item" asp-area="" asp-page="/ServicesForAdmin/Index">View Services</a></li>
                     </ul>
                 </li>

@@ -25,6 +25,13 @@ namespace CS395SI_Spring2023_Group1.Pages.StudentSchedule
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
+
+            // Prevent instructors from accessing this page
+            if (User.IsInRole("Instructor"))
+            {
+                return Forbid();
+            }
+
             if (id == null || _context.Spring2024_Group2_Schedule == null)
             {
                 return NotFound();
@@ -43,6 +50,13 @@ namespace CS395SI_Spring2023_Group1.Pages.StudentSchedule
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+
+            // Prevent instructors from accessing this page
+            if (User.IsInRole("Instructor"))
+            {
+                return Forbid();
+            }
+            
             if (!ModelState.IsValid)
             {
                 return Page();
