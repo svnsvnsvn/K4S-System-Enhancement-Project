@@ -35,6 +35,65 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
 
         public double ClassAttendancePercentage { get; set; } = 0;
 
+        
+        public async Task<IActionResult> OnPostEnrollStudentAsync(int sectionID, string studentEmail)
+{
+    // Verify the instructor has permission
+    if (!User.IsInRole("Instructor"))
+    {
+        return Forbid();
+    }
+    
+    // Get section details
+    var section = await _context.Spring2024_Group2_Sections
+        .FirstOrDefaultAsync(s => s.sectionID == sectionID);
+        
+    if (section == null)
+    {
+        return NotFound("Section not found");
+    }
+    
+    // Verify the student exists in the system
+    var studentExists = await _context.Spring2023_Group1_Profile_Sys
+        .AnyAsync(p => p.Email == studentEmail);
+        
+    if (!studentExists)
+    {
+        return BadRequest("Student not found in the system");
+    }
+    
+    // Check if the student is already enrolled in this section
+    var existingEnrollment = await _context.Spring2024_Group2_Schedule
+        .AnyAsync(s => s.StudentEmail == studentEmail && s.SectionID == sectionID);
+        
+    if (existingEnrollment)
+    {
+        return BadRequest("Student is already enrolled in this section");
+    }
+    
+    // Create the new enrollment using the section's dates
+    var newSchedule = new Spring2024_Group2_Schedule
+    {
+        StudentEmail = studentEmail,
+        ServiceID = section.serviceID,
+        ServiceName = section.serviceName,
+        SectionID = sectionID,
+        StartDate = section.StartDate ?? DateTime.Now, // Add null-coalescing operator
+        EndDate = section.EndDate ?? DateTime.Now.AddMonths(4), 
+        WeekDay = section.weekDay,
+        StartTime = section.startTime ?? TimeSpan.Zero,
+        EndTime = section.endTime ?? TimeSpan.Zero
+    };
+    
+    _context.Spring2024_Group2_Schedule.Add(newSchedule);
+    await _context.SaveChangesAsync();
+    
+    // Redirect back to the attendance page
+    return RedirectToPage(new { sectionID = sectionID });
+}
+
+
+
 
         public async Task OnGetAsync(int sectionID)
         {

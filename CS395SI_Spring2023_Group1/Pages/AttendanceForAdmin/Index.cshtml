@@ -24,6 +24,7 @@
     <div class="attendance-actions">
         <button id="exportBtn" class="btn-export"><i class="fas fa-file-export"></i> Export</button>
         <button id="printBtn" class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+        <button id="enrollStudentBtn" class="btn-enroll"><i class="fas fa-user-plus"></i> Enroll Student</button>
         <div class="filter-dropdown">
             <button class="btn-filter"><i class="fas fa-filter"></i> Filter</button>
             <div class="filter-content">
@@ -284,6 +285,39 @@
     </div>
 </div>
 
+<!-- Enroll Student Modal -->
+<div id="enrollStudentModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Enroll Student in @Model.SessionTitle</h3>
+            <span class="close-modal" id="closeEnrollModal">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="enrollStudentForm" method="post" asp-page-handler="EnrollStudent">
+                <input type="hidden" name="sectionID" value="@Model.SectionID" />
+                <div class="form-group">
+                    <label>Available Students:</label>
+                    <div class="search-container">
+                        <input type="text" id="studentSearch" class="form-control" placeholder="Filter by name or email...">
+                        <button type="button" id="searchButton"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="available-students-container">
+                        <div id="searchResults" class="available-students-list"></div>
+                    </div>
+                </div>
+                <div class="form-group" id="selectedStudentContainer" style="display: none;">
+                    <label>Selected Student:</label>
+                    <div id="selectedStudent" class="selected-student"></div>
+                    <input type="hidden" id="selectedStudentEmail" name="studentEmail" />
+                </div>
+                <div class="enrollment-actions">
+                    <button type="submit" class="btn-enroll-submit">Enroll Student</button>
+                    <button type="button" class="btn-cancel" id="cancelEnrollment">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <style>
     /* Reset and base styles */
     * {
@@ -382,18 +416,18 @@
         gap: 10px;
     }
 
-    .btn-export, .btn-print, .btn-filter {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        padding: 6px 12px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        transition: all 0.2s;
-    }
+    .btn-export, .btn-print, .btn-filter, .btn-enroll {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
 
     .btn-export:hover, .btn-print:hover, .btn-filter:hover {
         background-color: #e9ecef;
@@ -1094,6 +1128,132 @@
     .history-status.excused {
         color: #6c757d;
     }
+
+
+/* Form Group Styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* Search Container */
+.search-container {
+    display: flex;
+    gap: 5px;
+}
+
+.search-container button {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.search-results {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    display: none;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.selected-student {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.enrollment-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-enroll-submit {
+    background-color: #2d4275;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.btn-enroll-submit:hover {
+    background-color: #1a2b4e;
+}
+
+.btn-cancel {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.btn-cancel:hover {
+    background-color: #e9ecef;
+}
+
+/* Add this to your existing CSS */
+.available-students-container {
+    margin-top: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    height: 200px;
+    overflow-y: auto;
+}
+
+.available-students-list {
+    display: block;
+}
+
+.search-result-item {
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background-color: #f8f9fa;
+}
+
+.no-students-message {
+    padding: 10px;
+    color: #6c757d;
+    text-align: center;
+    font-style: italic;
+}
+
 </style>
 
 <script>
@@ -1556,4 +1716,96 @@
             document.getElementById('dateSelector').style.display = 'none';
         });
     });
+
+// Replace your existing enrollment-related JavaScript with this
+document.getElementById('enrollStudentBtn').addEventListener('click', async () => {
+    document.getElementById('enrollStudentModal').style.display = 'block';
+    
+    // Set default dates (current date and end of semester)
+    const today = new Date();
+    const endOfSemester = new Date(today);
+    endOfSemester.setMonth(endOfSemester.getMonth() + 4); // Roughly a semester
+    
+    document.getElementById('startDate').value = today.toISOString().split('T')[0];
+    document.getElementById('endDate').value = endOfSemester.toISOString().split('T')[0];
+    
+    // Load available students
+    loadAvailableStudents();
+});
+
+// Function to load available students
+async function loadAvailableStudents(query = '') {
+    const sectionID = @Model.SectionID;
+    try {
+        console.log(`Fetching students for section ${sectionID}`);
+        const response = await fetch(`/api/StudentSearch?sectionID=${sectionID}&query=${encodeURIComponent(query || '')}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        
+        const students = await response.json();
+        console.log(`Loaded ${students.length} students`, students);
+        
+        const searchResults = document.getElementById('searchResults');
+        searchResults.innerHTML = '';
+        
+        if (students.length === 0) {
+            searchResults.innerHTML = '<div class="no-students-message">No available students found</div>';
+            return;
+        }
+        
+        students.forEach(student => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.textContent = `${student.name} (${student.email})`;
+            item.dataset.email = student.email;
+            item.dataset.name = student.name;
+            
+            item.addEventListener('click', () => {
+                document.getElementById('selectedStudentEmail').value = student.email;
+                document.getElementById('selectedStudent').textContent = `${student.name} (${student.email})`;
+                document.getElementById('selectedStudentContainer').style.display = 'block';
+            });
+            
+            searchResults.appendChild(item);
+        });
+    } catch (error) {
+        console.error('Error loading available students:', error);
+        document.getElementById('searchResults').innerHTML = 
+            '<div class="no-students-message">Error loading students. Please try again.</div>';
+    }
+}
+
+// Handle search button click
+document.getElementById('searchButton').addEventListener('click', () => {
+    const query = document.getElementById('studentSearch').value;
+    loadAvailableStudents(query);
+});
+
+// Handle search input when user presses Enter
+document.getElementById('studentSearch').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const query = document.getElementById('studentSearch').value;
+        loadAvailableStudents(query);
+    }
+});
+
+document.getElementById('closeEnrollModal').addEventListener('click', () => {
+    document.getElementById('enrollStudentModal').style.display = 'none';
+    document.getElementById('selectedStudentContainer').style.display = 'none';
+    document.getElementById('selectedStudentEmail').value = '';
+    document.getElementById('studentSearch').value = '';
+});
+
+document.getElementById('cancelEnrollment').addEventListener('click', () => {
+    document.getElementById('enrollStudentModal').style.display = 'none';
+    document.getElementById('selectedStudentContainer').style.display = 'none';
+    document.getElementById('selectedStudentEmail').value = '';
+    document.getElementById('studentSearch').value = '';
+});
+
 </script>

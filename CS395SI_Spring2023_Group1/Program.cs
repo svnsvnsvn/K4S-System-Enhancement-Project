@@ -61,6 +61,8 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+app.MapControllers();
+
 using (var scope = app.Services.CreateScope())
 {
     await DbSeeder.SeedRolesAndAdminAsync(scope.ServiceProvider);
