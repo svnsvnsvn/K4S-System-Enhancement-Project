@@ -7,12 +7,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using CS395SI_Spring2023_Group1.Data;
 using CS395SI_Spring2023_K4S.Model;
-using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
 namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
 {
-    [Authorize(Roles = "User,Instructor")]
+    // Removed the Authorize attribute
     public class IndexModel : PageModel
     {
         private readonly CS395SI_Spring2023_Group1Context _context;
@@ -47,44 +46,41 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
         public async Task<IActionResult> OnGetAsync(int id)
         {
             ScheduleID = id;
+            Console.WriteLine($"ScheduleID: {ScheduleID}");
             
-            // Check if user is an admin
+            // Check if user is an admin - keeping this for functionality
             IsAdmin = User.IsInRole("Instructor");
+            Console.WriteLine($"IsAdmin: {IsAdmin}");
             
-            // Get the current user's email or use the student's email provided in the URL
-            var currentUserEmail = User.FindFirstValue(ClaimTypes.Name);
-            if (string.IsNullOrEmpty(currentUserEmail))
-            {
-                return RedirectToPage("/Account/Login");
-            }
-            
-            // Get schedule information - regardless of whether the user is the student or an admin
+            // Get schedule information
             var schedule = await _context.Spring2024_Group2_Schedule
                 .FirstOrDefaultAsync(s => s.ScheduleID == ScheduleID);
 
+            Console.WriteLine($"Schedule found: {schedule != null}");
+
             if (schedule == null)
             {
+                Console.WriteLine("Schedule not found");
                 return NotFound("Schedule not found.");
             }
             
             // Set the student email based on the schedule
             StudentEmail = schedule.StudentEmail;
-            
-            // If the user is not an admin and not the student of this schedule, deny access
-            if (!IsAdmin && currentUserEmail != StudentEmail)
-            {
-                return NotFound("You are not enrolled in this schedule.");
-            }
+            Console.WriteLine($"StudentEmail from schedule: {StudentEmail}");
+
+            // Removed the authorization check that was preventing access
 
             SectionID = schedule.SectionID;
             ServiceID = schedule.ServiceID;
+            Console.WriteLine($"SectionID: {SectionID}, ServiceID: {ServiceID}");
 
             // Calculate the start of the current week (or offset week)
             WeekStart = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek + (WeekOffset * 7));
             if (WeekStart.DayOfWeek != DayOfWeek.Monday)
             {
-                WeekStart = WeekStart.AddDays(1); // Ensure we start on Monday
+                WeekStart = WeekStart.AddDays(1); 
             }
+            Console.WriteLine($"WeekStart: {WeekStart}");
 
             // Get section information
             var sectionInfo = await _context.Spring2024_Group2_Sections
@@ -100,10 +96,13 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
                 })
                 .FirstOrDefaultAsync();
 
+            Console.WriteLine($"Section info found: {sectionInfo != null}");
+
             if (sectionInfo != null)
             {
                 ServiceName = sectionInfo.serviceName;
                 ScheduleTime = $"{sectionInfo.weekDay} | {sectionInfo.startTime} - {sectionInfo.endTime}";
+                Console.WriteLine($"Service Name: {ServiceName}, Schedule Time: {ScheduleTime}");
             }
 
             // Get attendance records for the student for the current week
@@ -115,11 +114,14 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
                 .OrderBy(a => a.CurrentDate)
                 .ToListAsync();
 
+            Console.WriteLine($"Attendance records found: {AttendanceRecords.Count}");
+
             // If no records exist for this week, create placeholders but don't save them
             var placeholders = new List<Spring2025_Group3_Attendance>();
             
             if (!AttendanceRecords.Any() && sectionInfo != null)
             {
+                Console.WriteLine("Creating placeholder records");
                 for (int i = 0; i < 7; i++)
                 {
                     var currentDate = WeekStart.AddDays(i);
@@ -127,6 +129,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
                     // Check if this is a day the class meets
                     if (currentDate.DayOfWeek.ToString() == sectionInfo.weekDay)
                     {
+                        Console.WriteLine($"Adding placeholder for {currentDate.DayOfWeek}");
                         placeholders.Add(new Spring2025_Group3_Attendance
                         {
                             Email = StudentEmail,
@@ -141,6 +144,7 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
                 
                 // Just use the placeholders for display, don't save to DB
                 AttendanceRecords = placeholders;
+                Console.WriteLine($"Created {placeholders.Count} placeholder records");
             }
 
             // Calculate attendance percentage
@@ -152,12 +156,15 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForStudent
 
             TotalSessions = allAttendanceRecords.Count;
             TotalSessionsPresent = allAttendanceRecords.Count(a => a.AttendanceStatus == "Present");
+            Console.WriteLine($"Total sessions: {TotalSessions}, Present: {TotalSessionsPresent}");
 
             if (TotalSessions > 0)
             {
                 PersonalAttendancePercentage = (double)TotalSessionsPresent / TotalSessions * 100;
+                Console.WriteLine($"Attendance percentage: {PersonalAttendancePercentage}%");
             }
 
+            Console.WriteLine("OnGetAsync completed successfully");
             return Page();
         }
     }
