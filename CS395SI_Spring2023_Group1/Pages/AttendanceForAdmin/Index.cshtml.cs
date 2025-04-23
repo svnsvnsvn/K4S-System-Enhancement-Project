@@ -28,6 +28,9 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
         [BindProperty(SupportsGet = true)]
         public int SectionID { get; set; }
 
+        public string Status { get; set; } = "Pending";
+
+
         [BindProperty(SupportsGet = true)]
         public int WeekOffset { get; set; } = 0;
 
@@ -82,7 +85,9 @@ namespace CS395SI_Spring2023_Group1.Pages.AttendanceForAdmin
         EndDate = section.EndDate ?? DateTime.Now.AddMonths(4), 
         WeekDay = section.weekDay,
         StartTime = section.startTime ?? TimeSpan.Zero,
-        EndTime = section.endTime ?? TimeSpan.Zero
+        EndTime = section.endTime ?? TimeSpan.Zero,
+        Status = "Pending" 
+
     };
     
     _context.Spring2024_Group2_Schedule.Add(newSchedule);
