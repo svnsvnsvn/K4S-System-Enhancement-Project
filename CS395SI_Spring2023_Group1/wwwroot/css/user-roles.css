@@ -1,0 +1,104 @@
+/**
+ * User Roles Management Styles
+ * 
+ * This stylesheet provides custom styling for the User Roles management interface.
+ * It defines colors, layout, and visual elements for the role assignment interface.
+ */
+
+/* Primary color variables */
+:root {
+    --primary-color: #c39a4b;
+    --primary-color-hover: #a88339;
+    --text-on-primary: white;
+}
+
+/* Page title styling */
+.title {
+    color: var(--primary-color);
+}
+
+/* Card headers with primary color */
+.primary-header {
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+}
+
+/* Primary action buttons */
+.primary-button {
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+    transition: background-color 0.2s ease;
+}
+
+.primary-button:hover {
+    background-color: var(--primary-color-hover);
+    color: var(--text-on-primary);
+}
+
+/* Table styling enhancements */
+#usersTable {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#usersTable thead th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#usersTable tbody tr:hover {
+    background-color: rgba(195, 154, 75, 0.1);
+}
+
+/* DataTables customization */
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 15px;
+}
+
+.dataTables_wrapper .dataTables_info, 
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 15px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--primary-color);
+    color: var(--text-on-primary) !important;
+    border-color: var(--primary-color);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current) {
+    background: #f0f0f0;
+    color: #333 !important;
+}
+
+/* Form control enhancements */
+.form-select:focus, 
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(195, 154, 75, 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .d-flex {
+        flex-direction: column;
+    }
+    
+    .form-select.form-select-sm {
+        margin-bottom: 5px;
+        margin-right: 0 !important;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn-group .btn {
+        margin-right: 0 !important;
+    }
+}

@@ -4,11 +4,15 @@
     ViewData["Title"] = "Manage User Roles";
 }
 
+<!-- Add references to CSS and JS files -->
+<link rel="stylesheet" href="~/css/user-roles.css" asp-append-version="true" />
+
 <div class="container mt-4">
-    <h1 class="mb-3" style="color:#c39a4b">Manage User Roles</h1>
+    <h1 class="mb-3 title">Manage User Roles</h1>
     
     <p>Assign roles to users to control their access level and permissions within the system.</p>
     
+    <!-- Alert messages for success and error feedback -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -25,9 +29,9 @@
         </div>
     }
     
-    <!-- Enhanced User Search -->
+    <!-- User Search Panel -->
     <div class="card border-0 shadow-sm mb-4">
-        <div class="card-header" style="background-color:#c39a4b; color:white">
+        <div class="card-header primary-header">
             <h5 class="mb-0">Find Users</h5>
         </div>
         <div class="card-body">
@@ -38,7 +42,7 @@
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Filter by Role</label>
-                    <select name="roleFilter" class="form-select">
+                    <select name="roleFilter" class="form-select" id="roleFilterSelect">
                         <option value="">All Roles</option>
                         @foreach (var role in Model.Roles)
                         {
@@ -47,7 +51,7 @@
                     </select>
                 </div>
                 <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn text-white w-100" style="background-color:#c39a4b">
+                    <button type="submit" class="btn primary-button w-100">
                         <i class="fas fa-search me-2"></i> Search
                     </button>
                 </div>
@@ -55,8 +59,9 @@
         </div>
     </div>
     
+    <!-- User Management Table -->
     <div class="card border-0 shadow-sm">
-        <div class="card-header" style="background-color:#c39a4b; color:white">
+        <div class="card-header primary-header">
             <h5 class="mb-0">User Management</h5>
         </div>
         <div class="card-body">
@@ -90,18 +95,18 @@
                                                 <option value="@role.Text">@role.Text</option>
                                             }
                                         </select>
-                                        <button type="submit" class="btn btn-sm" style="background-color:#c39a4b; color:white">Update</button>
+                                        <button type="submit" class="btn btn-sm primary-button">Update</button>
                                     </form>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <form method="post" asp-page-handler="ResetPassword" onsubmit="return confirm('Are you sure you want to reset this user\'s password?');">
+                                        <form method="post" asp-page-handler="ResetPassword" class="reset-password-form">
                                             <input type="hidden" name="userId" value="@user.UserId" />
                                             <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
                                             <input type="hidden" name="roleFilter" value="@Model.RoleFilter" />
                                             <button type="submit" class="btn btn-sm btn-warning me-2">Reset Password</button>
                                         </form>
-                                        <form method="post" asp-page-handler="DeleteUser" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                        <form method="post" asp-page-handler="DeleteUser" class="delete-user-form">
                                             <input type="hidden" name="userId" value="@user.UserId" />
                                             <input type="hidden" name="searchTerm" value="@Model.SearchTerm" />
                                             <input type="hidden" name="roleFilter" value="@Model.RoleFilter" />
@@ -120,34 +125,5 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
-    <script>
-        $(document).ready(function() {
-            // Initialize DataTables with more features
-            $('#usersTable').DataTable({
-                "pageLength": 10,
-                "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-                "order": [[0, "asc"]],
-                "responsive": true,
-                "dom": '<"top"lf>rt<"bottom"ip>',
-                "language": {
-                    "search": "Quick filter:",
-                    "lengthMenu": "Show _MENU_ users per page",
-                    "info": "Showing _START_ to _END_ of _TOTAL_ users"
-                },
-                "columnDefs": [
-                    { "width": "20%", "targets": 0 },
-                    { "width": "20%", "targets": 1 },
-                    { "width": "15%", "targets": 2 },
-                    { "width": "25%", "targets": 3 },
-                    { "width": "20%", "targets": 4 }
-                ]
-            });
-
-            // Instant form submission when role filter changes
-            $('select[name="roleFilter"]').on('change', function() {
-                $(this).closest('form').submit();
-            });
-        });
-    </script>
+    <script src="~/js/user-roles.js" asp-append-version="true"></script>
 }
