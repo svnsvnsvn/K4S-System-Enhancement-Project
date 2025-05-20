@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient; 
+using Microsoft.Data.SqlClient;
 
 namespace CS395SI_Spring2023_Group1.Pages
 {
@@ -12,86 +12,106 @@ namespace CS395SI_Spring2023_Group1.Pages
         private readonly ILogger<IndexModel> _logger;
         private readonly IConfiguration _configuration;
 
-        public string? UserDisplayName { get; set; } 
+        public string? UserDisplayName { get; set; }
 
         public IndexModel(ILogger<IndexModel> logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
-            UserDisplayName = null; 
+            UserDisplayName = null;
         }
+
 
         public void OnGet()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
                 string userEmail = User.Identity.Name ?? string.Empty;
-                
-                if (!User.IsInRole("Admin"))
+
+                // Set session for nonadmin users
+                if (!User.IsInRole("Admin") && HttpContext.Session != null)
                 {
-                    if (HttpContext.Session != null)
+                    HttpContext.Session.SetString("studentEmail", userEmail);
+                }
+
+                try
+                {
+                    string connectionString = _configuration.GetConnectionString("CS395SI_Spring2023_Group1Context");
+                    if (string.IsNullOrEmpty(connectionString))
                     {
-                        HttpContext.Session.SetString("studentEmail", userEmail);
+                        throw new InvalidOperationException("Connection string 'CS395SI_Spring2023_Group1Context' not found.");
                     }
-                    
-                    try
+
+                    using (var connection = new SqlConnection(connectionString))
                     {
-                        string connectionString = _configuration.GetConnectionString("CS395SI_Spring2023_Group1Context");
-                        if (string.IsNullOrEmpty(connectionString))
+                        connection.Open();
+                        // For all users, including admins, try to get their name from the db
+                        var command = new SqlCommand(
+                            @"SELECT TOP 1 [Name], [ApplicationStatus] 
+                    FROM [dbo].[Spring2023_Group1_Profile_Sys] 
+                    WHERE [Email] = @Email",
+                            connection);
+                        command.Parameters.AddWithValue("@Email", userEmail);
+
+                        using (var reader = command.ExecuteReader())
                         {
-                            throw new InvalidOperationException("Connection string 'CS395SI_Spring2023_Group1Context' not found.");
-                        }
-                        
-                        using (var connection = new SqlConnection(connectionString))
-                        {
-                            connection.Open();
-                            var command = new SqlCommand(
-                                @"SELECT TOP 1 [Name], [ApplicationStatus] 
-                                FROM [dbo].[Spring2023_Group1_Profile_Sys] 
-                                WHERE [Email] = @Email", 
-                                connection);
-                            command.Parameters.AddWithValue("@Email", userEmail);
-                            
-                            using (var reader = command.ExecuteReader())
+                            if (reader.Read())
                             {
-                                if (reader.Read())
-                                {
-                                    // Get the user's name for display
-                                    UserDisplayName = reader["Name"].ToString();
-                                    
-                                    string? applicationStatus = reader["ApplicationStatus"].ToString();
-                                    ViewData["IsUserApproved"] = (applicationStatus == "Approved");
-                                }
-                                else
-                                {
-                                    UserDisplayName = userEmail;
-                                    ViewData["IsUserApproved"] = false;
-                                }
+                                // Get the users name for display
+                                UserDisplayName = reader["Name"].ToString();
+
+                                string? applicationStatus = reader["ApplicationStatus"].ToString();
+                                ViewData["IsUserApproved"] = (applicationStatus == "Approved") || User.IsInRole("Admin");
+                            }
+                            else
+                            {
+                                // No profile found, use name extraction from email
+                                ExtractNameFromEmail(userEmail);
+                                ViewData["IsUserApproved"] = User.IsInRole("Admin");
                             }
                         }
                     }
-                    catch (Exception ex)
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error retrieving user information for {Email}", userEmail);
+
+                    // Always try to extract a name from email rather than using raw email
+                    ExtractNameFromEmail(userEmail);
+
+                    // Admins are always approved, others depend on config
+                    ViewData["IsUserApproved"] = User.IsInRole("Admin") ? true : true;
+                }
+            }
+        }
+
+        // Helper method to extract name from email
+        private void ExtractNameFromEmail(string email)
+        {
+            if (email.Contains("@"))
+            {
+                string nameFromEmail = email.Split('@')[0];
+                if (!string.IsNullOrEmpty(nameFromEmail))
+                {
+                    // Convert format like "john.doe" to "John Doe"
+                    string[] nameParts = nameFromEmail.Split(new[] { '.', '_', '-' });
+                    for (int i = 0; i < nameParts.Length; i++)
                     {
-                        _logger.LogError(ex, "Error retrieving user information for {Email}", userEmail);
-                        UserDisplayName = userEmail;
-                        
-                        if (userEmail.Contains("@"))
+                        if (!string.IsNullOrEmpty(nameParts[i]))
                         {
-                            string nameFromEmail = userEmail.Split('@')[0];
-                            if (!string.IsNullOrEmpty(nameFromEmail))
-                            {
-                                UserDisplayName = char.ToUpper(nameFromEmail[0]) + nameFromEmail.Substring(1).ToLower();
-                            }
+                            nameParts[i] = char.ToUpper(nameParts[i][0]) + nameParts[i].Substring(1).ToLower();
                         }
-                        
-                        ViewData["IsUserApproved"] = true; 
                     }
+                    UserDisplayName = string.Join(" ", nameParts);
                 }
                 else
                 {
-                    UserDisplayName = userEmail;
-                    ViewData["IsUserApproved"] = true; // Admins are always "approved"
+                    UserDisplayName = "User"; // Fallback if no name part can be extracted
                 }
+            }
+            else
+            {
+                UserDisplayName = "User"; // Fallback if email format is invalid
             }
         }
     }
