@@ -38,6 +38,6 @@ packages/
 
 # Ignore Visual Studio Code workspace settings
 .vscode/settings.json
-.json
 
 # Omit project-specific files and configurations like
+CS395SI_Spring2025_Group3/appsettings.json
